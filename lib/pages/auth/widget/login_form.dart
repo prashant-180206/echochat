@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class LoginForm extends StatefulWidget {
-  final Function onLogin;
+  final Function(String email, String password) onLogin;
   const LoginForm({super.key, required this.onLogin});
 
   @override
@@ -42,6 +42,19 @@ class _LoginFormState extends State<LoginForm> {
               prefixIcon: const Icon(Icons.email),
             ),
             controller: emailController,
+            validator: (value){
+              if(value == null || value.isEmpty){
+                return "Email is required";
+              }
+              if (value.length < 5) {
+                return "Email must be at least 5 characters";
+              }
+              if (!value.contains("@")) {
+                return "Email must contain @";
+              }
+              return null;
+
+            },
           ),
           TextFormField(
             decoration: inputDecoration.copyWith(
@@ -56,16 +69,26 @@ class _LoginFormState extends State<LoginForm> {
                 icon: Icon(
                   showPassword ? Icons.visibility_off : Icons.visibility,
                 ),
+
               ),
             ),
             controller: passwordController,
             obscureText: !showPassword,
+            validator: (value) {
+              if(value == null || value.isEmpty){
+                return "Password is required";
+              }
+              if (value.length < 6) {
+                return "Password must be at least 6 characters";
+              }
+              return null;
+            },
           ),
           ElevatedButton(
             onPressed: () {
               setState(() {});
               if (_formKey.currentState!.validate()) {
-                widget.onLogin();
+                widget.onLogin(emailController.text, passwordController.text);
               }
             },
             child: const Text("Login"),
