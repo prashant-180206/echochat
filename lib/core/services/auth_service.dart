@@ -1,6 +1,7 @@
+import 'package:echochat/core/models/profile.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../data/profile.dart';
+
 
 class AuthService {
   final supabase = Supabase.instance.client;

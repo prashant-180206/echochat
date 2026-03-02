@@ -1,4 +1,4 @@
-import 'package:echochat/backend/auth_service.dart';
+import 'package:echochat/core/services/auth_service.dart';
 import 'package:echochat/pages/auth/login_page.dart';
 import 'package:echochat/pages/auth/widget/signup_form.dart';
 import 'package:flutter/material.dart';
