@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Profile {
 
- String get id; String get email; String? get name; DateTime? get createdAt; String get bio; String get gender; String get avatarUrl;
+ String get id; String get email; String get name; DateTime? get createdAt; String get bio; String get gender; String get avatarUrl;
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $ProfileCopyWith<$Res>  {
   factory $ProfileCopyWith(Profile value, $Res Function(Profile) _then) = _$ProfileCopyWithImpl;
 @useResult
 $Res call({
- String id, String email, String? name, DateTime? createdAt, String bio, String gender, String avatarUrl
+ String id, String email, String name, DateTime? createdAt, String bio, String gender, String avatarUrl
 });
 
 
@@ -65,12 +65,12 @@ class _$ProfileCopyWithImpl<$Res>
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? email = null,Object? name = freezed,Object? createdAt = freezed,Object? bio = null,Object? gender = null,Object? avatarUrl = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? email = null,Object? name = null,Object? createdAt = freezed,Object? bio = null,Object? gender = null,Object? avatarUrl = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
-as String,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,bio: null == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String,gender: null == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
 as String,avatarUrl: null == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
@@ -156,7 +156,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String email,  String? name,  DateTime? createdAt,  String bio,  String gender,  String avatarUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String email,  String name,  DateTime? createdAt,  String bio,  String gender,  String avatarUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Profile() when $default != null:
 return $default(_that.id,_that.email,_that.name,_that.createdAt,_that.bio,_that.gender,_that.avatarUrl);case _:
@@ -177,7 +177,7 @@ return $default(_that.id,_that.email,_that.name,_that.createdAt,_that.bio,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String email,  String? name,  DateTime? createdAt,  String bio,  String gender,  String avatarUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String email,  String name,  DateTime? createdAt,  String bio,  String gender,  String avatarUrl)  $default,) {final _that = this;
 switch (_that) {
 case _Profile():
 return $default(_that.id,_that.email,_that.name,_that.createdAt,_that.bio,_that.gender,_that.avatarUrl);}
@@ -194,7 +194,7 @@ return $default(_that.id,_that.email,_that.name,_that.createdAt,_that.bio,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String email,  String? name,  DateTime? createdAt,  String bio,  String gender,  String avatarUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String email,  String name,  DateTime? createdAt,  String bio,  String gender,  String avatarUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _Profile() when $default != null:
 return $default(_that.id,_that.email,_that.name,_that.createdAt,_that.bio,_that.gender,_that.avatarUrl);case _:
@@ -209,12 +209,12 @@ return $default(_that.id,_that.email,_that.name,_that.createdAt,_that.bio,_that.
 @JsonSerializable()
 
 class _Profile implements Profile {
-   _Profile({required this.id, required this.email, this.name, this.createdAt, this.bio = '', this.gender = '', this.avatarUrl = ''});
+   _Profile({required this.id, required this.email, this.name = '', this.createdAt, this.bio = '', this.gender = '', this.avatarUrl = ''});
   factory _Profile.fromJson(Map<String, dynamic> json) => _$ProfileFromJson(json);
 
 @override final  String id;
 @override final  String email;
-@override final  String? name;
+@override@JsonKey() final  String name;
 @override final  DateTime? createdAt;
 @override@JsonKey() final  String bio;
 @override@JsonKey() final  String gender;
@@ -253,7 +253,7 @@ abstract mixin class _$ProfileCopyWith<$Res> implements $ProfileCopyWith<$Res> {
   factory _$ProfileCopyWith(_Profile value, $Res Function(_Profile) _then) = __$ProfileCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String email, String? name, DateTime? createdAt, String bio, String gender, String avatarUrl
+ String id, String email, String name, DateTime? createdAt, String bio, String gender, String avatarUrl
 });
 
 
@@ -270,12 +270,12 @@ class __$ProfileCopyWithImpl<$Res>
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? email = null,Object? name = freezed,Object? createdAt = freezed,Object? bio = null,Object? gender = null,Object? avatarUrl = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? email = null,Object? name = null,Object? createdAt = freezed,Object? bio = null,Object? gender = null,Object? avatarUrl = null,}) {
   return _then(_Profile(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
-as String,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,bio: null == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
 as String,gender: null == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
 as String,avatarUrl: null == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
