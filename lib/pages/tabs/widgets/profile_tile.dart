@@ -8,15 +8,19 @@ class ProfileTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(currentProfile.name.toUpperCase()?? ""),
+      title: Text(currentProfile.name.toUpperCase()),
       trailing: IconButton(
         onPressed: () {
-          ConversationService().connectUser(currentProfile);
+          ConversationService.connectUser(currentProfile);
         },
         icon: Icon(Icons.add),
       ),
       leading: CircleAvatar(
-        child: Text(currentProfile.name.toUpperCase().isNotEmpty ? currentProfile.name.toUpperCase()[0] : ""),
+        child: Text(
+          currentProfile.name.toUpperCase().isNotEmpty
+              ? currentProfile.name.toUpperCase()[0]
+              : "",
+        ),
       ),
       subtitle: Text(currentProfile.email),
     );

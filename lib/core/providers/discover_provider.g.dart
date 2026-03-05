@@ -9,11 +9,17 @@ part of 'discover_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(Discover)
+@ProviderFor(discover)
 final discoverProvider = DiscoverFamily._();
 
 final class DiscoverProvider
-    extends $AsyncNotifierProvider<Discover, List<Profile>> {
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Profile>>,
+          List<Profile>,
+          FutureOr<List<Profile>>
+        >
+    with $FutureModifier<List<Profile>>, $FutureProvider<List<Profile>> {
   DiscoverProvider._({
     required DiscoverFamily super.from,
     required String super.argument,
@@ -37,7 +43,15 @@ final class DiscoverProvider
 
   @$internal
   @override
-  Discover create() => Discover();
+  $FutureProviderElement<List<Profile>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<Profile>> create(Ref ref) {
+    final argument = this.argument as String;
+    return discover(ref, argument);
+  }
 
   @override
   bool operator ==(Object other) {
@@ -50,17 +64,10 @@ final class DiscoverProvider
   }
 }
 
-String _$discoverHash() => r'860881657ce6fa59495b971e6db3c6e8fbe7b291';
+String _$discoverHash() => r'87ef4b35edaf788245211f284facbc44c3ab9408';
 
 final class DiscoverFamily extends $Family
-    with
-        $ClassFamilyOverride<
-          Discover,
-          AsyncValue<List<Profile>>,
-          List<Profile>,
-          FutureOr<List<Profile>>,
-          String
-        > {
+    with $FunctionalFamilyOverride<FutureOr<List<Profile>>, String> {
   DiscoverFamily._()
     : super(
         retry: null,
@@ -70,30 +77,9 @@ final class DiscoverFamily extends $Family
         isAutoDispose: true,
       );
 
-  DiscoverProvider call(String searchstr) =>
-      DiscoverProvider._(argument: searchstr, from: this);
+  DiscoverProvider call(String searchStr) =>
+      DiscoverProvider._(argument: searchStr, from: this);
 
   @override
   String toString() => r'discoverProvider';
-}
-
-abstract class _$Discover extends $AsyncNotifier<List<Profile>> {
-  late final _$args = ref.$arg as String;
-  String get searchstr => _$args;
-
-  FutureOr<List<Profile>> build(String searchstr);
-  @$mustCallSuper
-  @override
-  void runBuild() {
-    final ref = this.ref as $Ref<AsyncValue<List<Profile>>, List<Profile>>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<AsyncValue<List<Profile>>, List<Profile>>,
-              AsyncValue<List<Profile>>,
-              Object?,
-              Object?
-            >;
-    element.handleCreate(ref, () => build(_$args));
-  }
 }

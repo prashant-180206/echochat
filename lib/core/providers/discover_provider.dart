@@ -5,17 +5,10 @@ import 'package:echochat/core/models/profile.dart';
 part 'discover_provider.g.dart';
 
 @riverpod
-class Discover extends _$Discover {
-
-  @override
-  Future<List<Profile>> build(String searchstr) async {
-    await DiscoverService.fetchUsers(searchstr);
-    return Future.value([]);
-  }
-
-  Future<void> changesearchstr(String newstr) async {
-    state = const AsyncValue.loading();
-    final result = await DiscoverService.fetchUsers(newstr);
-    state = AsyncValue.data(result);
-  }
+Future<List<Profile>> discover(
+  Ref ref,
+  String searchStr,
+) async {
+  if (searchStr.isEmpty) return [];
+  return DiscoverService.fetchUsers(searchStr);
 }
