@@ -1,28 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class LoginForm extends StatefulWidget {
+class LoginForm extends HookWidget {
   final Function(String email, String password) onLogin;
-  const LoginForm({super.key, required this.onLogin});
+  LoginForm({super.key, required this.onLogin});
 
-  @override
-  State<LoginForm> createState() => _LoginFormState();
-}
-
-class _LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  InputDecoration inputDecoration = InputDecoration(
+  final InputDecoration inputDecoration = InputDecoration(
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
   );
 
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-
-  String email = "";
-  String password = "";
-
-  bool showPassword = false;
   @override
   Widget build(BuildContext context) {
+    final emailController = useTextEditingController();
+    final passwordController = useTextEditingController();
+    final showPassword = useState(false);
     return Form(
       key: _formKey,
       child: Column(
@@ -42,8 +34,8 @@ class _LoginFormState extends State<LoginForm> {
               prefixIcon: const Icon(Icons.email),
             ),
             controller: emailController,
-            validator: (value){
-              if(value == null || value.isEmpty){
+            validator: (value) {
+              if (value == null || value.isEmpty) {
                 return "Email is required";
               }
               if (value.length < 5) {
@@ -53,7 +45,6 @@ class _LoginFormState extends State<LoginForm> {
                 return "Email must contain @";
               }
               return null;
-
             },
           ),
           TextFormField(
@@ -62,20 +53,17 @@ class _LoginFormState extends State<LoginForm> {
               prefixIcon: const Icon(Icons.lock),
               suffixIcon: IconButton(
                 onPressed: () {
-                  setState(() {
-                    showPassword = !showPassword;
-                  });
+                  showPassword.value = !showPassword.value;
                 },
                 icon: Icon(
-                  showPassword ? Icons.visibility_off : Icons.visibility,
+                  showPassword.value ? Icons.visibility_off : Icons.visibility,
                 ),
-
               ),
             ),
             controller: passwordController,
-            obscureText: !showPassword,
+            obscureText: !showPassword.value,
             validator: (value) {
-              if(value == null || value.isEmpty){
+              if (value == null || value.isEmpty) {
                 return "Password is required";
               }
               if (value.length < 6) {
@@ -86,9 +74,8 @@ class _LoginFormState extends State<LoginForm> {
           ),
           ElevatedButton(
             onPressed: () {
-              setState(() {});
               if (_formKey.currentState!.validate()) {
-                widget.onLogin(emailController.text, passwordController.text);
+                onLogin(emailController.text, passwordController.text);
               }
             },
             child: const Text("Login"),

@@ -1,18 +1,21 @@
-// import 'package:echochat/core/services/discover_service.dart';
-// import 'package:hooks_riverpod/hooks_riverpod.dart';
-// import 'package:riverpod_annotation/riverpod_annotation.dart';
-// import 'package:echochat/core/models/profile.dart';
+import 'package:echochat/core/services/discover_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:echochat/core/models/profile.dart';
 
-// part 'discover_provider.g.dart';
+part 'discover_provider.g.dart';
 
-// @riverpod
-// Future<List<Profile>> discoverUsers(
-//   WidgetRef ref,
-//   String searchStr,
-// ) async {
-//   if (searchStr.trim().isEmpty) {
-//     return [];
-//   }
+@riverpod
+class Discover extends _$Discover {
 
-//   return DiscoverService.fetchUsers(searchStr.trim());
-// }
+  @override
+  Future<List<Profile>> build(String searchstr) async {
+    await DiscoverService.fetchUsers(searchstr);
+    return Future.value([]);
+  }
+
+  Future<void> changesearchstr(String newstr) async {
+    state = const AsyncValue.loading();
+    final result = await DiscoverService.fetchUsers(newstr);
+    state = AsyncValue.data(result);
+  }
+}

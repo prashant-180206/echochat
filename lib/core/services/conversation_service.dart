@@ -1,64 +1,86 @@
-import 'package:echochat/core/models/conversation.dart';
 import 'package:echochat/core/models/conversation_list_view.dart';
-import 'package:echochat/core/models/message.dart';
 import 'package:echochat/core/models/profile.dart';
 import 'package:echochat/core/singleton.dart';
 
-class ConversationListData {
-  final Conversation conversation;
-  final Profile otherUser;
-  final Message? lastMessage;
-  ConversationListData({
-    required this.conversation,
-    required this.otherUser,
-    this.lastMessage,
-  });
-}
-
 class ConversationService {
+  /// create a conversation between current user and another user
   static Future<void> connectUser(Profile p) async {
-    final convo = await supabase.from("conversation").insert({}).select();
+    final convo = await supabase
+        .from("conversation")
+        .insert({})
+        .select()
+        .single();
+
+    final conversationId = convo["id"];
+    final currentUserId = supabase.auth.currentUser!.id;
+
     await supabase.from("conversation_participants").insert([
-      {
-        "user_id": supabase.auth.currentUser!.id,
-        "conversation_id": convo[0]["id"],
-      },
-      {"user_id": p.id, "conversation_id": convo[0]["id"]},
+      {"user_id": currentUserId, "conversation_id": conversationId},
+      {"user_id": p.id, "conversation_id": conversationId},
     ]);
+
     logger.d(
-      "ConversationService: connectUser: Connected ${p.name} with current user in conversation ${convo[0]["id"]}",
+      "ConversationService: Connected ${p.name} with current user in conversation $conversationId",
     );
   }
 
-  static Stream<List<ConversationListView>> streamUserConversations({
+  /// realtime stream of conversations updated in last 10 minutes
+  static Stream<List<ConversationListView>> streamRecentChanges({
     int limit = 20,
   }) {
-    final currentUser = supabase.auth.currentUser!;
-    final currentUserId = currentUser.id;
+    final currentUserId = supabase.auth.currentUser!.id;
 
     return supabase
         .from('conversation_list_view')
-        .stream(primaryKey: ['conversation_id'])
-        .eq('current_user_id', currentUserId) // adjust if column name differs
+        .stream(primaryKey: ['id'])
+        .eq('user_id', currentUserId)
         .order('last_time', ascending: false)
         .limit(limit)
-        .map(
-          (rows) =>
-              rows.map((row) => ConversationListView.fromJson(row)).toList(),
-        );
+        .map((rows) {
+          final cutoff = DateTime.now().subtract(const Duration(minutes: 10));
+
+          return rows
+              .map((row) => ConversationListView.fromJson(row))
+              .where((c) => c.lastTime.isAfter(cutoff))
+              .toList();
+        });
   }
 
-  static Future<List<ConversationListView>> getMoreConversations({
-    required DateTime lastFetchedLastTime,
+  /// initial fetch for conversation list
+  static Future<List<ConversationListView>> getStaticConversations({
     int limit = 20,
   }) async {
-    final currentUser = supabase.auth.currentUser!;
-    final currentUserId = currentUser.id;
+    final currentUserId = supabase.auth.currentUser!.id;
 
     final response = await supabase
         .from('conversation_list_view')
         .select()
-        .eq('current_user_id', currentUserId) // adjust if needed
+        .eq('user_id', currentUserId)
+        .lt(
+          "last_time",
+          DateTime.now()
+              .subtract(const Duration(minutes: 10))
+              .toIso8601String(),
+        )
+        .order('last_time', ascending: false)
+        .limit(limit);
+
+    return response
+        .map<ConversationListView>((row) => ConversationListView.fromJson(row))
+        .toList();
+  }
+
+  /// pagination - fetch older conversations
+  static Future<List<ConversationListView>> getMoreConversations({
+    required DateTime lastFetchedLastTime,
+    int limit = 20,
+  }) async {
+    final currentUserId = supabase.auth.currentUser!.id;
+
+    final response = await supabase
+        .from('conversation_list_view')
+        .select()
+        .eq('user_id', currentUserId)
         .lt('last_time', lastFetchedLastTime.toIso8601String())
         .order('last_time', ascending: false)
         .limit(limit);
@@ -67,5 +89,4 @@ class ConversationService {
         .map<ConversationListView>((row) => ConversationListView.fromJson(row))
         .toList();
   }
-  
 }

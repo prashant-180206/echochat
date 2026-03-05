@@ -1,32 +1,25 @@
+import 'package:echochat/core/services/auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:echochat/data/profile.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class SignUpForm extends StatefulWidget {
+class SignUpForm extends HookWidget {
   final Future<bool> Function(ProfileDataUpload data) onSignUp;
 
-  const SignUpForm({super.key, required this.onSignUp});
+  SignUpForm({super.key, required this.onSignUp});
 
-  @override
-  State<SignUpForm> createState() => _SignUpFormState();
-}
-
-class _SignUpFormState extends State<SignUpForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController bioController = TextEditingController();
-
-  bool showPassword = false;
-  String gender = "Male";
-
-  InputDecoration inputDecoration = InputDecoration(
+  final InputDecoration inputDecoration = InputDecoration(
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
   );
 
   @override
   Widget build(BuildContext context) {
+    final nameController = useTextEditingController();
+    final emailController = useTextEditingController();
+    final passwordController = useTextEditingController();
+    final bioController = useTextEditingController();
+    final gender = useState("Male");
+    final showPassword = useState(false);
     return Form(
       key: _formKey,
       child: Column(
@@ -55,7 +48,7 @@ class _SignUpFormState extends State<SignUpForm> {
               if (value.length < 3) {
                 return "Minimum 3 characters";
               }
-            
+
               return null;
             },
           ),
@@ -79,18 +72,16 @@ class _SignUpFormState extends State<SignUpForm> {
           // Password
           TextFormField(
             controller: passwordController,
-            obscureText: !showPassword,
+            obscureText: !showPassword.value,
             decoration: inputDecoration.copyWith(
               labelText: "Password",
               prefixIcon: const Icon(Icons.lock),
               suffixIcon: IconButton(
                 icon: Icon(
-                  showPassword ? Icons.visibility_off : Icons.visibility,
+                  showPassword.value ? Icons.visibility_off : Icons.visibility,
                 ),
                 onPressed: () {
-                  setState(() {
-                    showPassword = !showPassword;
-                  });
+                  showPassword.value = !showPassword.value;
                 },
               ),
             ),
@@ -108,23 +99,19 @@ class _SignUpFormState extends State<SignUpForm> {
           // Bio
           TextFormField(
             controller: bioController,
-            decoration: inputDecoration.copyWith(
-              labelText: "Bio",
-            ),
+            decoration: inputDecoration.copyWith(labelText: "Bio"),
           ),
 
           // Gender
           DropdownButtonFormField<String>(
-            initialValue: gender,
+            initialValue: gender.value,
             items: const [
               DropdownMenuItem(value: "Male", child: Text("Male")),
               DropdownMenuItem(value: "Female", child: Text("Female")),
               DropdownMenuItem(value: "Other", child: Text("Other")),
             ],
             onChanged: (value) {
-              setState(() {
-                gender = value!;
-              });
+              gender.value = value!;
             },
             decoration: inputDecoration.copyWith(labelText: "Gender"),
           ),
@@ -133,19 +120,21 @@ class _SignUpFormState extends State<SignUpForm> {
           ElevatedButton(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
-                bool result = await widget.onSignUp(
+                bool result = await onSignUp(
                   ProfileDataUpload(
                     name: nameController.text.trim(),
                     email: emailController.text.trim(),
                     password: passwordController.text.trim(),
                     bio: bioController.text.trim(),
-                    gender: gender,
+                    gender: gender.value,
                   ),
                 );
                 if (!context.mounted) return;
                 if (result) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Account created successfully")),
+                    const SnackBar(
+                      content: Text("Account created successfully"),
+                    ),
                   );
                   // Navigator.pop(context);
                 } else {
