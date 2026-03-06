@@ -47,7 +47,7 @@ app.*.map.json
 .env
 
 # Ignore all .freezed.dart files inside lib/
-lib/**/*.freezed.dart
+*.freezed.dart
 
 # Ignore all .g.dart files inside lib/
-lib/**/*.g.dart
+*.g.dart

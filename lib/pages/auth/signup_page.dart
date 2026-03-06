@@ -26,7 +26,7 @@ class _SignupPageState extends State<SignupPage> {
             children: [
               SignUpForm(
                 onSignUp: (data) async {
-                  await AuthService().signUp(data);
+                  await AuthService.signUp(data);
                   if (context.mounted) {
                     Navigator.push(
                       context,

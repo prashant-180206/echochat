@@ -28,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
               LoginForm(
                 onLogin: (email, password) async {
                   try {
-                    await AuthService().signIn(email, password);
+                    await AuthService.signIn(email, password);
                     if (!context.mounted) return;
                     Navigator.pushReplacement(
                       context,
