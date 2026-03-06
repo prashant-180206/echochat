@@ -1,92 +1,82 @@
-import 'package:echochat/core/models/conversation_list_view.dart';
+import 'package:echochat/core/models/conversation.dart';
 import 'package:echochat/core/models/profile.dart';
 import 'package:echochat/core/singleton.dart';
 
 class ConversationService {
   /// create a conversation between current user and another user
   static Future<void> connectUser(Profile p) async {
-    final convo = await supabase
-        .from("conversation")
-        .insert({})
-        .select()
-        .single();
-
-    final conversationId = convo["id"];
     final currentUserId = supabase.auth.currentUser!.id;
 
-    await supabase.from("conversation_participants").insert([
-      {"user_id": currentUserId, "conversation_id": conversationId},
-      {"user_id": p.id, "conversation_id": conversationId},
-    ]);
+    try {
+      // 1. Create the conversation record
+      // We select it back to get the ID
+      final convo = await supabase
+          .from("conversation")
+          .insert({
+            'unread': 0,
+            'last_message_content': 'Started a new conversation',
+          })
+          .select()
+          .single();
 
-    logger.d(
-      "ConversationService: Connected ${p.name} with current user in conversation $conversationId",
-    );
+      final conversationId = convo["id"];
+
+      // 2. Insert both participants at once
+      // This triggers our 'trigger_refresh_members' SQL function automatically
+      await supabase.from("conversation_participants").insert([
+        {"user_id": currentUserId, "conversation_id": conversationId},
+        {"user_id": p.id, "conversation_id": conversationId},
+      ]);
+
+      logger.d(
+        "ConversationService: Successfully connected with ${p.name}. ID: $conversationId",
+      );
+    } catch (e) {
+      logger.e("ConversationService: Failed to connect user: $e");
+      rethrow;
+    }
   }
 
-  /// realtime stream of conversations updated in last 10 minutes
-  static Stream<List<ConversationListView>> streamRecentChanges({
-    int limit = 20,
-  }) {
-    final currentUserId = supabase.auth.currentUser!.id;
-
+  /// REALTIME STREAM
+  /// Listens to the physical 'conversation' table.
+  /// RLS handles the security so the user only sees their own chats.
+  static Stream<List<Conversation>> streamConversations({int limit = 20}) {
     return supabase
-        .from('conversation_list_view')
+        .from('conversation') // Use the table, not the view
         .stream(primaryKey: ['id'])
-        .eq('user_id', currentUserId)
         .order('last_time', ascending: false)
         .limit(limit)
-        .map((rows) {
-          final cutoff = DateTime.now().subtract(const Duration(minutes: 10));
-
-          return rows
-              .map((row) => ConversationListView.fromJson(row))
-              .where((c) => c.lastTime.isAfter(cutoff))
-              .toList();
-        });
+        .map((rows) => rows.map((row) => Conversation.fromJson(row)).toList());
   }
 
-  /// initial fetch for conversation list
-  static Future<List<ConversationListView>> getStaticConversations({
+  /// INITIAL FETCH
+  /// Gets the latest conversations (no time cutoff needed usually,
+  /// as the stream takes over for real-time updates).
+  static Future<List<Conversation>> getInitialConversations({
     int limit = 20,
   }) async {
-    final currentUserId = supabase.auth.currentUser!.id;
-
     final response = await supabase
-        .from('conversation_list_view')
+        .from('conversation')
         .select()
-        .eq('user_id', currentUserId)
-        .lt(
-          "last_time",
-          DateTime.now()
-              .subtract(const Duration(minutes: 10))
-              .toIso8601String(),
-        )
         .order('last_time', ascending: false)
         .limit(limit);
 
-    return response
-        .map<ConversationListView>((row) => ConversationListView.fromJson(row))
-        .toList();
+    return response.map((row) => Conversation.fromJson(row)).toList();
   }
 
-  /// pagination - fetch older conversations
-  static Future<List<ConversationListView>> getMoreConversations({
-    required DateTime lastFetchedLastTime,
+  /// PAGINATION
+  /// Fetches conversations older than the oldest one currently in the list.
+  static Future<List<Conversation>> getMoreConversations({
+    required DateTime lastFetchedTime,
     int limit = 20,
   }) async {
-    final currentUserId = supabase.auth.currentUser!.id;
-
     final response = await supabase
-        .from('conversation_list_view')
+        .from('conversation')
         .select()
-        .eq('user_id', currentUserId)
-        .lt('last_time', lastFetchedLastTime.toIso8601String())
+        .lt('last_time', lastFetchedTime.toIso8601String())
         .order('last_time', ascending: false)
         .limit(limit);
 
-    return response
-        .map<ConversationListView>((row) => ConversationListView.fromJson(row))
-        .toList();
+    return response.map((row) => Conversation.fromJson(row)).toList();
   }
 }

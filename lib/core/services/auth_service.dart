@@ -17,27 +17,25 @@ class ProfileDataUpload {
 }
 
 class AuthService {
-  Future<void> signIn(String email, String password) async {
-    await supabase.auth.signInWithPassword(email: email, password: password);
+  static Future<void> signIn(String email, String password) async {
+    try {
+      await supabase.auth.signInWithPassword(email: email, password: password);
+    } catch (e) {
+      logger.e("AuthService: signIn: Error signing in user $email: $e");
+      rethrow;
+    }
   }
 
-  Future<void> signOut() async {
-    await supabase.auth.signOut();
+  static Future<void> signOut() async {
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      logger.e("AuthService: signOut: Error signing out user: $e");
+      rethrow;
+    }
   }
 
-  Future<Profile> getProfile() async {
-    final data = await supabase
-        .from("profiles")
-        .select()
-        .eq("id", supabase.auth.currentUser!.id);
-
-    logger.d(
-      "AuthService: getProfile: Fetched profile for user ${supabase.auth.currentUser!.email}",
-    );
-    return Profile.fromJson(data[0]);
-  }
-
-  Future<bool> signUp(ProfileDataUpload newUser) async {
+  static Future<bool> signUp(ProfileDataUpload newUser) async {
     try {
       await supabase.auth.signUp(
         email: newUser.email,

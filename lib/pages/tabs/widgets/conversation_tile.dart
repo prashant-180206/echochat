@@ -1,8 +1,8 @@
-import 'package:echochat/core/models/conversation_list_view.dart';
+import 'package:echochat/core/models/conversation.dart';
 import 'package:flutter/material.dart';
 
 class ConversationTile extends StatelessWidget {
-  final ConversationListView conversation;
+  final Conversation conversation;
 
   const ConversationTile({
     super.key,
@@ -13,16 +13,18 @@ class ConversationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: CircleAvatar(
-        child: Text(conversation.otherUserId[0]),
+        child: Text(conversation.lastMessageContent.isNotEmpty
+            ? conversation.lastMessageContent[0].toUpperCase()
+            : "?"),
       ),
-      title: Text(conversation.otherUserId),
+      title: Text(conversation.lastMessageSenderId ?? "Unknown"),
       subtitle: Text(
         conversation.lastTime.toString(),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       trailing: Text(
-        _formatTime(conversation.lastTime),
+        _formatTime(conversation.lastTime ?? conversation.createdAt),
         style: Theme.of(context).textTheme.bodySmall,
       ),
     );

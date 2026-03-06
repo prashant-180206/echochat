@@ -45,3 +45,9 @@ app.*.map.json
 /android/app/release
 
 .env
+
+# Ignore all .freezed.dart files inside lib/
+lib/**/*.freezed.dart
+
+# Ignore all .g.dart files inside lib/
+lib/**/*.g.dart
