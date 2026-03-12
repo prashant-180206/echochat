@@ -6,27 +6,19 @@ class MessageService {
     int conversationId, {
     int limit = 30,
   }) {
-    final cutoff = DateTime.now().subtract(const Duration(minutes: 10));
     return supabase
         .from('message')
         .stream(primaryKey: ['id'])
         .eq('conversation_id', conversationId)
         .order('created_at', ascending: true)
         .limit(limit)
-        .map(
-          (rows) => rows
-              .map((row) => Message.fromJson(row))
-              .where((msg) => msg.createdAt.isAfter(cutoff))
-              .toList(),
-        );
+        .map((rows) => rows.map((row) => Message.fromJson(row)).toList());
   }
 
   static Future<List<Message>> getInitialMessagesForConversation(
     int conversationId, {
     int limit = 30,
   }) async {
-    final cutoff = DateTime.now().subtract(const Duration(minutes: 10));
-
     final response = await supabase
         .from('message')
         .select()
@@ -34,10 +26,7 @@ class MessageService {
         .order('created_at', ascending: true)
         .limit(limit);
 
-    return response
-        .map<Message>((row) => Message.fromJson(row))
-        .where((msg) => msg.createdAt.isAfter(cutoff))
-        .toList();
+    return response.map<Message>((row) => Message.fromJson(row)).toList();
   }
 
   static Future<List<Message>> getNextMessages({
@@ -45,7 +34,6 @@ class MessageService {
     required DateTime oldestMessageTime,
     int limit = 30,
   }) async {
-
     final response = await supabase
         .from('message')
         .select()

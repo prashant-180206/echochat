@@ -20,6 +20,7 @@ class SignUpForm extends HookWidget {
     final bioController = useTextEditingController();
     final gender = useState("Male");
     final showPassword = useState(false);
+
     return Form(
       key: _formKey,
       child: Column(
