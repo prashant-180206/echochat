@@ -1,31 +1,94 @@
 import 'package:echochat/core/models/conversation.dart';
+import 'package:echochat/core/singleton.dart';
+import 'package:echochat/pages/tabs/chat/chat_screen.dart';
 import 'package:flutter/material.dart';
 
 class ConversationTile extends StatelessWidget {
   final Conversation conversation;
 
-  const ConversationTile({
-    super.key,
-    required this.conversation,
-  });
+  const ConversationTile({super.key, required this.conversation});
 
   @override
   Widget build(BuildContext context) {
+    // Get the other user (not the current user)
+    final currentUserId = supabase.auth.currentUser?.id;
+    final otherMember = conversation.members.firstWhere(
+      (member) => member.id != currentUserId,
+      orElse: () => ConversationMember(id: 'unknown', name: 'Unknown User'),
+    );
+
     return ListTile(
+      onTap: () {
+        // Navigate to chat screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatScreen(
+              conversationId: conversation.id,
+              otherUser: otherMember,
+            ),
+          ),
+        );
+      },
       leading: CircleAvatar(
-        child: Text(conversation.lastMessageContent.isNotEmpty
-            ? conversation.lastMessageContent[0].toUpperCase()
-            : "?"),
+        backgroundImage:
+            otherMember.avatarUrl != null && otherMember.avatarUrl!.isNotEmpty
+            ? NetworkImage(otherMember.avatarUrl!)
+            : null,
+        child: otherMember.avatarUrl == null || otherMember.avatarUrl!.isEmpty
+            ? Text(
+                otherMember.name.isNotEmpty
+                    ? otherMember.name[0].toUpperCase()
+                    : '?',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ): null
       ),
-      title: Text(conversation.lastMessageSenderId ?? "Unknown"),
+      title: Text(
+        otherMember.name,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
       subtitle: Text(
-        conversation.lastTime.toString(),
+        conversation.lastMessageContent,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: conversation.unread > 0 ? Colors.black : Colors.grey[600],
+          fontWeight: conversation.unread > 0
+              ? FontWeight.w600
+              : FontWeight.normal,
+        ),
       ),
-      trailing: Text(
-        _formatTime(conversation.lastTime ?? conversation.createdAt),
-        style: Theme.of(context).textTheme.bodySmall,
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            _formatTime(conversation.lastTime ?? conversation.createdAt),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: conversation.unread > 0
+                  ? Theme.of(context).primaryColor
+                  : Theme.of(context).textTheme.bodySmall?.color,
+            ),
+          ),
+          if (conversation.unread > 0) ...[
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                conversation.unread > 99 ? '99+' : '${conversation.unread}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -36,6 +99,7 @@ class ConversationTile extends StatelessWidget {
 
     if (diff.inMinutes < 60) return "${diff.inMinutes}m";
     if (diff.inHours < 24) return "${diff.inHours}h";
+    if (diff.inDays < 7) return "${diff.inDays}d";
     return "${time.day}/${time.month}";
   }
 }

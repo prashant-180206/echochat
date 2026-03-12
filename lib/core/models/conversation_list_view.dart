@@ -25,3 +25,6 @@ sealed class ConversationListView with _$ConversationListView {
   factory ConversationListView.fromJson(Map<String, dynamic> json) =>
       _$ConversationListViewFromJson(json);
 }
+
+
+

@@ -1,6 +1,7 @@
-// import 'package:echochat/providers/conversation_provider.dart';
 import 'package:echochat/core/providers/conversation_provider.dart';
 import 'package:echochat/pages/tabs/widgets/conversation_tile.dart';
+import 'package:echochat/pages/tabs/widgets/error_display.dart';
+import 'package:echochat/pages/tabs/widgets/list_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,42 +13,30 @@ class ConversationTab extends ConsumerWidget {
     final dynamicConvos = ref.watch(dynamicConversationsProvider);
     final staticConvos = ref.watch(staticConversationsProvider);
 
-    return staticConvos.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text("Error: $e")),
-      data: (staticList) {
-        final dynamicList = dynamicConvos.value ?? [];
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: dynamicConvos.when(
+        data: (dynamicData) {
+          return staticConvos.when(
+            data: (staticData) {
+              final allConvos = [
+                ...dynamicData,
+                ...staticData,
+              ];
 
-        final conversations = [
-          ...dynamicList,
-          ...staticList,
-        ];
-
-        if (conversations.isEmpty) {
-          return const Center(child: Text("No conversations"));
-        }
-
-        return NotificationListener<ScrollNotification>(
-          onNotification: (scroll) {
-            /// Trigger when reaching the top
-            if (scroll.metrics.pixels <= 0) {
-              ref
-                  .read(staticConversationsProvider.notifier)
-                  .loadMore();
-            }
-            return false;
-          },
-          child: ListView(
-            children: conversations
-                .map(
-                  (c) => ConversationTile(
-                    conversation: c,
-                  ),
-                )
-                .toList(),
-          ),
-        );
-      },
+              return ListView(
+                children: allConvos
+                    .map((c) => ConversationTile(conversation: c))
+                    .toList(),
+              );
+            },
+            loading: () => const ListSkeleton(),
+            error: (e, s) => ErrorDisplay(error: e, stackTrace: s),
+          );
+        },
+        loading: () => const ListSkeleton(),
+        error: (e, s) => ErrorDisplay(error: e, stackTrace: s),
+      ),
     );
   }
 }

@@ -14,7 +14,7 @@ class TabPage extends StatefulWidget {
 class _TabPageState extends State<TabPage> {
   int _currentIndex = 0;
 
-  final List<Widget> _tabs = [
+  final List<Widget> _tabs = const [
     ConversationTab(),
     DiscoverTab(),
     ProfileTab(),
@@ -24,11 +24,15 @@ class _TabPageState extends State<TabPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("EchoChat")),
+      appBar: AppBar(
+        title: const Text("EchoChat"),
+        foregroundColor: Colors.white,
+      ),
       body: _tabs[_currentIndex],
 
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
+        currentIndex: _currentIndex,
         onTap: (value) {
           setState(() {
             _currentIndex = value;

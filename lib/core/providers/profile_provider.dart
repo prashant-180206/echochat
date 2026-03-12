@@ -4,8 +4,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'profile_provider.g.dart';
 
-@riverpod
-class ProfileProvider extends _$ProfileProvider {
+@Riverpod(keepAlive: true)
+class ProfileInstance extends _$ProfileInstance {
   @override
   FutureOr<Profile> build() {
     return ProfileService.getUserProfile();

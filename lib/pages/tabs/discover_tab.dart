@@ -1,8 +1,11 @@
 import 'package:echochat/core/providers/discover_provider.dart';
+import 'package:echochat/pages/tabs/widgets/error_display.dart';
+import 'package:echochat/pages/tabs/widgets/list_skeleton.dart';
 import 'package:echochat/pages/tabs/widgets/profile_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_debouncer/flutter_debouncer.dart';
 
 class DiscoverTab extends HookConsumerWidget {
   const DiscoverTab({super.key});
@@ -12,7 +15,7 @@ class DiscoverTab extends HookConsumerWidget {
     final controller = useTextEditingController();
     final searchText = useState("");
     final results = ref.watch(discoverProvider(searchText.value));
-
+    final debouncer = useMemoized(() => Debouncer());
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -23,15 +26,14 @@ class DiscoverTab extends HookConsumerWidget {
             decoration: InputDecoration(
               hintText: "Search",
               prefixIcon: const Icon(Icons.search),
-              suffixIcon: IconButton(
-                onPressed: () {
-                  searchText.value = controller.text;
-                },
-                icon: const Icon(Icons.search_outlined),
-              ),
+
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(100),
               ),
+            ),
+            onChanged: (value) => debouncer.debounce(
+              duration: Duration(milliseconds: 500),
+              onDebounce: () => searchText.value = value,
             ),
           ),
 
@@ -47,16 +49,12 @@ class DiscoverTab extends HookConsumerWidget {
                 return ListView.builder(
                   itemCount: profiles.length,
                   itemBuilder: (context, index) {
-                    return ProfileTile(
-                      currentProfile: profiles[index],
-                    );
+                    return ProfileTile(currentProfile: profiles[index]);
                   },
                 );
               },
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
-              error: (e, st) =>
-                  Center(child: Text("Error: $e")),
+              loading: () => const ListSkeleton(),
+              error: (e, st) => ErrorDisplay(error: e, stackTrace: st),
             ),
           ),
         ],

@@ -16,6 +16,9 @@ class ProfileTile extends StatelessWidget {
         icon: Icon(Icons.add),
       ),
       leading: CircleAvatar(
+        backgroundImage: currentProfile.avatarUrl.isNotEmpty
+            ? NetworkImage(currentProfile.avatarUrl)
+            : null,
         child: Text(
           currentProfile.name.toUpperCase().isNotEmpty
               ? currentProfile.name.toUpperCase()[0]
