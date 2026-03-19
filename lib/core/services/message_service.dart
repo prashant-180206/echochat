@@ -2,6 +2,8 @@ import 'package:echochat/core/models/message.dart';
 import 'package:echochat/core/singleton.dart';
 
 class MessageService {
+  static final threshold = DateTime.now().subtract(const Duration(minutes: 10));
+
   static Stream<List<Message>> streamMessagesForConversation(
     int conversationId, {
     int limit = 30,
@@ -12,7 +14,12 @@ class MessageService {
         .eq('conversation_id', conversationId)
         .order('created_at', ascending: true)
         .limit(limit)
-        .map((rows) => rows.map((row) => Message.fromJson(row)).toList());
+        .map(
+          (rows) => rows
+              .map((row) => Message.fromJson(row))
+              .where((msg) => msg.createdAt.isAfter(threshold))
+              .toList(),
+        );
   }
 
   static Future<List<Message>> getInitialMessagesForConversation(
@@ -23,6 +30,7 @@ class MessageService {
         .from('message')
         .select()
         .eq('conversation_id', conversationId)
+        .lt("created_at", threshold.toIso8601String())
         .order('created_at', ascending: true)
         .limit(limit);
 

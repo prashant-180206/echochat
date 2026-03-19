@@ -1,6 +1,4 @@
-import 'package:echochat/core/models/conversation.dart';
 import 'package:echochat/core/singleton.dart';
-import 'package:echochat/pages/tabs/chat/chat_screen.dart';
 import 'package:echochat/pages/landing_page.dart';
 import 'package:echochat/pages/tab_page.dart';
 import 'package:flutter/material.dart';
@@ -51,15 +49,6 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: supabase.auth.currentSession != null ? const TabPage() : const LandingPage(),
-      routes: {
-        '/chat': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-          return ChatScreen(
-            conversationId: args['conversationId'] as int,
-            otherUser: args['otherUser'] as ConversationMember,
-          );
-        },
-      },
     );
   }
 }

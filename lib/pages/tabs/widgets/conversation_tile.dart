@@ -1,6 +1,6 @@
 import 'package:echochat/core/models/conversation.dart';
 import 'package:echochat/core/singleton.dart';
-import 'package:echochat/pages/tabs/chat/chat_screen.dart';
+import 'package:echochat/pages/chat/chat_screen.dart';
 import 'package:flutter/material.dart';
 
 class ConversationTile extends StatelessWidget {
@@ -16,6 +16,11 @@ class ConversationTile extends StatelessWidget {
       (member) => member.id != currentUserId,
       orElse: () => ConversationMember(id: 'unknown', name: 'Unknown User'),
     );
+    final hasAvatar =
+        otherMember.avatarUrl != null && otherMember.avatarUrl!.isNotEmpty;
+    final doBold =
+        conversation.unread > 0 &&
+        conversation.lastMessageSenderId != currentUserId;
 
     return ListTile(
       onTap: () {
@@ -31,17 +36,18 @@ class ConversationTile extends StatelessWidget {
         );
       },
       leading: CircleAvatar(
-        backgroundImage:
-            otherMember.avatarUrl != null && otherMember.avatarUrl!.isNotEmpty
+        backgroundImage: hasAvatar
             ? NetworkImage(otherMember.avatarUrl!)
             : null,
-        child: otherMember.avatarUrl == null || otherMember.avatarUrl!.isEmpty
+        child: !hasAvatar
             ? Text(
                 otherMember.name.isNotEmpty
                     ? otherMember.name[0].toUpperCase()
                     : '?',
+            
                 style: const TextStyle(fontWeight: FontWeight.bold),
-              ): null
+              )
+            : null,
       ),
       title: Text(
         otherMember.name,
@@ -52,8 +58,8 @@ class ConversationTile extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          color: conversation.unread > 0 ? Colors.black : Colors.grey[600],
-          fontWeight: conversation.unread > 0
+          color: doBold ? Colors.black : Colors.grey[600],
+          fontWeight: doBold
               ? FontWeight.w600
               : FontWeight.normal,
         ),
@@ -65,12 +71,12 @@ class ConversationTile extends StatelessWidget {
           Text(
             _formatTime(conversation.lastTime ?? conversation.createdAt),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: conversation.unread > 0
+              color: doBold
                   ? Theme.of(context).primaryColor
                   : Theme.of(context).textTheme.bodySmall?.color,
             ),
           ),
-          if (conversation.unread > 0) ...[
+          if (doBold) ...[
             const SizedBox(height: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

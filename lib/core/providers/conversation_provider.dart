@@ -47,17 +47,4 @@ class StaticConversations extends _$StaticConversations {
       ...result,
     ]);
   }
-
-  /// refresh static list
-  // Future<void> refresh() async {
-  //   state = const AsyncValue.loading();
-
-  //   final result = await ConversationService.getInitialConversations();
-
-  //   if (result.isNotEmpty) {
-  //     _lastTime = result.last.lastTime;
-  //   }
-
-  //   state = AsyncValue.data(result);
-  // }
 }

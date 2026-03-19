@@ -13,30 +13,24 @@ class ConversationTab extends ConsumerWidget {
     final dynamicConvos = ref.watch(dynamicConversationsProvider);
     final staticConvos = ref.watch(staticConversationsProvider);
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: dynamicConvos.when(
-        data: (dynamicData) {
-          return staticConvos.when(
-            data: (staticData) {
-              final allConvos = [
-                ...dynamicData,
-                ...staticData,
-              ];
+    return dynamicConvos.when(
+      data: (dynamicData) {
+        return staticConvos.when(
+          data: (staticData) {
+            final allConvos = [...dynamicData, ...staticData];
 
-              return ListView(
-                children: allConvos
-                    .map((c) => ConversationTile(conversation: c))
-                    .toList(),
-              );
-            },
-            loading: () => const ListSkeleton(),
-            error: (e, s) => ErrorDisplay(error: e, stackTrace: s),
-          );
-        },
-        loading: () => const ListSkeleton(),
-        error: (e, s) => ErrorDisplay(error: e, stackTrace: s),
-      ),
+            return ListView.builder(
+              itemCount: allConvos.length,
+              itemBuilder: (context, index) =>
+                  ConversationTile(conversation: allConvos[index]),
+            );
+          },
+          loading: () => const ListSkeleton(),
+          error: (e, s) => ErrorDisplay(error: e, stackTrace: s),
+        );
+      },
+      loading: () => const ListSkeleton(),
+      error: (e, s) => ErrorDisplay(error: e, stackTrace: s),
     );
   }
 }

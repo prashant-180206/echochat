@@ -52,25 +52,6 @@ class MessageHistory extends _$MessageHistory {
     ]);
   }
 
-  /// send message
-  Future<void> send(String content, {String type = "text"}) async {
-    await MessageService.sendMessage(
-      conversationId: conversationId,
-      content: content,
-      type: type,
-    );
-  }
-
-  /// edit message
-  Future<void> edit(int messageId, String newContent) async {
-    await MessageService.editMessage(messageId, newContent);
-  }
-
-  /// delete message
-  Future<void> delete(int messageId) async {
-    await MessageService.deleteMessage(messageId);
-  }
-
   /// refresh history
   Future<void> refresh() async {
     state = const AsyncValue.loading();
