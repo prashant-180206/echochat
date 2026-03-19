@@ -1,8 +1,8 @@
+
 import 'package:echochat/core/models/profile.dart';
 import 'package:echochat/core/singleton.dart';
 
 class ProfileService {
-  
   static Future<Profile> getUserProfile() async {
     try {
       final data = await supabase

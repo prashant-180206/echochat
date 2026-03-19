@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TabPage extends ConsumerStatefulWidget {
   const TabPage({super.key});
-
   @override
   ConsumerState<TabPage> createState() => _TabPageState();
 }

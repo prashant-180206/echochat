@@ -32,7 +32,18 @@ class ConversationTab extends HookConsumerWidget {
       data: (dynamicData) {
         return staticConvos.when(
           data: (staticData) {
-            final allConvos = [...dynamicData, ...staticData];
+            final Map<int, dynamic> convoMap = {};
+
+            for (final convo in staticData) {
+              convoMap[convo.id] = convo;
+            }
+
+            for (final convo in dynamicData) {
+              convoMap[convo.id] = convo;
+            }
+
+            final allConvos = convoMap.values.toList()
+              ..sort((a, b) => b.lastTime.compareTo(a.lastTime));
 
             return ListView.separated(
               controller: scrollcontroller,
@@ -40,7 +51,8 @@ class ConversationTab extends HookConsumerWidget {
               itemBuilder: (context, index) =>
                   ConversationTile(conversation: allConvos[index]),
 
-                  separatorBuilder: (context, index) => const Divider(height: 1 , indent: 20,endIndent: 20,),
+              separatorBuilder: (context, index) =>
+                  const Divider(height: 1, indent: 20, endIndent: 20),
             );
           },
           loading: () => const ListSkeleton(),
