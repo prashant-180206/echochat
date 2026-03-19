@@ -5,16 +5,27 @@ import 'package:intl/intl.dart';
 
 class MessageBubble extends StatelessWidget {
   final Message message;
+
   const MessageBubble({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
-    final bool isMe =
-        message.senderId ==
-        supabase
-            .auth
-            .currentUser
-            ?.id; // Placeholder, replace with actual logic to determine if the message is from the current user
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
+    final bool isMe = message.senderId == supabase.auth.currentUser?.id;
+
+    final bubbleColor = isMe
+        ? colorScheme.primary
+        : colorScheme.surfaceContainerHighest;
+
+    final textColor = isMe ? colorScheme.onPrimary : colorScheme.onSurface;
+
+    final timeColor = isMe
+        ? colorScheme.inversePrimary
+        : colorScheme.secondary;
+
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
 
@@ -22,22 +33,26 @@ class MessageBubble extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: isMe ? Colors.blue : Colors.grey[300],
+          color: bubbleColor,
           borderRadius: BorderRadius.circular(12.0),
         ),
+
         child: Column(
           crossAxisAlignment: isMe
               ? CrossAxisAlignment.end
               : CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(message.content, style: const TextStyle(color: Colors.white)),
+            Text(
+              message.content,
+              style: textTheme.bodyMedium?.copyWith(color: textColor),
+            ),
+
             const SizedBox(height: 4.0),
+
             Text(
               formatTime(message.createdAt),
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.white70),
+              style: textTheme.bodySmall?.copyWith(color: timeColor),
             ),
           ],
         ),
@@ -58,10 +73,8 @@ class MessageBubble extends StatelessWidget {
     } else if (difference.inDays == 1 && now.day - time.day == 1) {
       return 'Yesterday';
     } else if (difference.inDays < 7) {
-      // Example: Mon, Tue, Wed
       return DateFormat('EEE').format(time);
     } else {
-      // Example: 19/03/2026
       return DateFormat('dd/MM/yyyy').format(time);
     }
   }

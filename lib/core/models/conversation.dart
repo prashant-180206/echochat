@@ -8,7 +8,7 @@ sealed class ConversationMember with _$ConversationMember {
   factory ConversationMember({
     required String id,
     required String name,
-    @JsonKey(name: 'avatar_url') String? avatarUrl,
+    @JsonKey(name: 'avatar_url') @Default('') String avatarUrl,
   }) = _ConversationMember;
 
   factory ConversationMember.fromJson(Map<String, dynamic> json) =>
@@ -23,10 +23,12 @@ sealed class Conversation with _$Conversation {
     @Default(0) int unread,
     @JsonKey(name: 'last_time') DateTime? lastTime,
     @JsonKey(name: 'last_message') int? lastMessage,
-    @JsonKey(name: 'last_message_content') @Default('') String lastMessageContent,
+    @JsonKey(name: 'last_message_content')
+    @Default('')
+    String lastMessageContent,
     @JsonKey(name: 'last_message_type') @Default('text') String lastMessageType,
     @JsonKey(name: 'last_message_sender_id') String? lastMessageSenderId,
-    
+
     // NEW: The list of members
     @Default([]) List<ConversationMember> members,
   }) = _Conversation;

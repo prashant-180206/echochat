@@ -2,14 +2,13 @@ import 'package:echochat/core/models/message.dart';
 import 'package:echochat/core/singleton.dart';
 
 class MessageService {
-  static DateTime get _threshold => DateTime.now().toUtc().subtract(const Duration(minutes: 10));
+  static DateTime get _threshold =>
+      DateTime.now().toUtc().subtract(const Duration(minutes: 10));
 
   static Stream<List<Message>> streamMessagesForConversation(
     int conversationId, {
     int limit = 30,
   }) {
-    // final tenMinutesAgo = _threshold.toIso8601String();
-
     return supabase
         .from('message')
         .stream(primaryKey: ['id'])
@@ -31,12 +30,12 @@ class MessageService {
     final tenMinutesAgo = _threshold.toIso8601String();
 
     final response = await supabase
-      .from('message')
-      .select()
-      .eq('conversation_id', conversationId)
-      .lt('created_at', tenMinutesAgo)
-      .order('created_at', ascending: true)
-      .limit(limit);
+        .from('message')
+        .select()
+        .eq('conversation_id', conversationId)
+        .lt('created_at', tenMinutesAgo)
+        .order('created_at', ascending: true)
+        .limit(limit);
 
     return response.map<Message>((row) => Message.fromJson(row)).toList();
   }

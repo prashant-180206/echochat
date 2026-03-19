@@ -3,7 +3,8 @@ import 'package:echochat/core/models/profile.dart';
 import 'package:echochat/core/singleton.dart';
 
 class ConversationService {
-  static DateTime get _thresholdTime => DateTime.now().toUtc().subtract(const Duration(minutes: 10));
+  static DateTime get _thresholdTime =>
+      DateTime.now().toUtc().subtract(const Duration(minutes: 10));
 
   static Future<void> connectUser(Profile p) async {
     try {
@@ -30,17 +31,35 @@ class ConversationService {
         .map((rows) => rows.map((row) => Conversation.fromJson(row)).toList());
   }
 
+  static Future<void> markAsRead(int conversationId) async {
+    try {
+      logger.d(
+        "ConversationService: Marking conversation $conversationId as read",
+      );
+      await supabase
+          .from('conversation')
+          .update({'unread': 0})
+          .eq('id', conversationId);
+      logger.d(
+        "ConversationService: Marked conversation $conversationId as read",
+      );
+    } catch (e) {
+      logger.e("ConversationService: Failed to mark conversation as read: $e");
+      rethrow;
+    }
+  }
+
   static Future<List<Conversation>> getInitialConversations({
     int limit = 20,
   }) async {
     final tenMinutesAgo = _thresholdTime.toIso8601String();
 
     final response = await supabase
-      .from('conversation')
-      .select()
-      .lt('last_time', tenMinutesAgo)
-      .order('last_time', ascending: false)
-      .limit(limit);
+        .from('conversation')
+        .select()
+        .lt('last_time', tenMinutesAgo)
+        .order('last_time', ascending: false)
+        .limit(limit);
 
     return response.map((row) => Conversation.fromJson(row)).toList();
   }

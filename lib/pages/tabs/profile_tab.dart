@@ -1,5 +1,6 @@
 import 'package:echochat/core/providers/profile_provider.dart';
 import 'package:echochat/pages/edit/edit_profile_page.dart';
+import 'package:echochat/utils/widgets/profile_view_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -17,24 +18,13 @@ class ProfileTab extends HookConsumerWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // --- Header Section ---
             Center(
               child: Stack(
                 children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.primaryContainer,
-                    backgroundImage: profile.avatarUrl.isNotEmpty
-                        ? NetworkImage(profile.avatarUrl)
-                        : null,
-                    child: profile.avatarUrl.isEmpty
-                        ? Text(
-                            profile.name[0],
-                            style: const TextStyle(fontSize: 40),
-                          )
-                        : null,
+                  ProfileViewAvatar(
+                    avatarUrl: profile.avatarUrl,
+                    name: profile.name,
+                    size: 160,
                   ),
                   Positioned(
                     bottom: 0,
