@@ -1,17 +1,19 @@
+import 'package:echochat/core/providers/app_theme_provider.dart';
 import 'package:echochat/pages/tabs/conversation_tab.dart';
 import 'package:echochat/pages/tabs/discover_tab.dart';
 import 'package:echochat/pages/tabs/profile_tab.dart';
 import 'package:echochat/pages/tabs/settings_tab.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TabPage extends StatefulWidget {
+class TabPage extends ConsumerStatefulWidget {
   const TabPage({super.key});
 
   @override
-  State<TabPage> createState() => _TabPageState();
+  ConsumerState<TabPage> createState() => _TabPageState();
 }
 
-class _TabPageState extends State<TabPage> {
+class _TabPageState extends ConsumerState<TabPage> {
   int _currentIndex = 0;
 
   final List<Widget> _tabs = const [
@@ -23,10 +25,19 @@ class _TabPageState extends State<TabPage> {
   
   @override
   Widget build(BuildContext context) {
+    final thememode = ref.watch(appThemeProvider);
+      final theme = ref.read(appThemeProvider.notifier);
+  
     return Scaffold(
       appBar: AppBar(
         title: const Text("EchoChat"),
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            onPressed: () => theme.toggleTheme(),
+            icon:  Icon(thememode==ThemeMode.light ? Icons.dark_mode : Icons.light_mode),
+          )
+        ],
       ),
       body: _tabs[_currentIndex],
 

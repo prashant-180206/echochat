@@ -22,6 +22,7 @@ class ProfileUpdateForm extends HookConsumerWidget {
     final bioController = useTextEditingController(text: initialProfile.bio);
     final avatarUrl = useState(initialProfile.avatarUrl);
     final formKey = useMemoized(() => GlobalKey<FormState>());
+    final gender = useState(initialProfile.gender);
     return Form(
       key: formKey,
       child: Column(
@@ -88,6 +89,20 @@ class ProfileUpdateForm extends HookConsumerWidget {
                 (v == null || v.length < 6) ? "Bio too short" : null,
           ),
 
+          DropdownButtonFormField<String>(
+            initialValue: gender.value,
+            items: const [
+              DropdownMenuItem(value: "Male", child: Text("Male")),
+              DropdownMenuItem(value: "Female", child: Text("Female")),
+              DropdownMenuItem(value: "Other", child: Text("Other")),
+            ],
+            onChanged: (value) {
+              gender.value = value!;
+            },
+            decoration: decoration("gender", Icons.wc),
+          ),
+
+
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -101,6 +116,7 @@ class ProfileUpdateForm extends HookConsumerWidget {
                   name: nameController.text.trim(),
                   bio: bioController.text.trim(),
                   avatarUrl: avatarUrl.value.trim(),
+                  gender: gender.value.trim(),
                 );
                 await ref
                     .read(profileInstanceProvider.notifier)
