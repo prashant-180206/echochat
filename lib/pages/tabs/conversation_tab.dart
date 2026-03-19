@@ -34,11 +34,13 @@ class ConversationTab extends HookConsumerWidget {
           data: (staticData) {
             final allConvos = [...dynamicData, ...staticData];
 
-            return ListView.builder(
+            return ListView.separated(
               controller: scrollcontroller,
               itemCount: allConvos.length,
               itemBuilder: (context, index) =>
                   ConversationTile(conversation: allConvos[index]),
+
+                  separatorBuilder: (context, index) => const Divider(height: 1 , indent: 20,endIndent: 20,),
             );
           },
           loading: () => const ListSkeleton(),

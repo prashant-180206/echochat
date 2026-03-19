@@ -51,7 +51,7 @@ class ConversationTile extends StatelessWidget {
       ),
       title: Text(
         otherMember.name,
-        style: const TextStyle(fontWeight: FontWeight.w600),
+        style:  TextStyle(fontWeight: doBold? FontWeight.w600: FontWeight.w400),
       ),
       subtitle: Text(
         conversation.lastMessageContent,
