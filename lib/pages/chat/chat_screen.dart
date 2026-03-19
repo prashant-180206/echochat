@@ -5,6 +5,7 @@ import 'package:echochat/pages/chat/widgets/message_input.dart';
 import 'package:echochat/pages/chat/widgets/message_skeleton.dart';
 import 'package:echochat/pages/tabs/widgets/error_display.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ChatScreen extends HookConsumerWidget {
@@ -21,6 +22,20 @@ class ChatScreen extends HookConsumerWidget {
     final messages = ref.watch(dynamicMessagesProvider(conversationId));
     final staticMessages = ref.watch(messageHistoryProvider(conversationId));
 
+    final scrollcontroller = useScrollController();
+
+    useEffect(() {
+      void listener() {
+        if (scrollcontroller.position.pixels >=
+            scrollcontroller.position.maxScrollExtent - 200) {
+          ref.read(messageHistoryProvider(conversationId).notifier).loadMore();
+        }
+      }
+
+      scrollcontroller.addListener(listener);
+      return () => scrollcontroller.removeListener(listener);
+    }, [scrollcontroller, conversationId]);
+
     return Scaffold(
       appBar: AppBar(title: Text(otherUser.name)), // Accessing otherUser name
       body: SafeArea(
@@ -30,11 +45,15 @@ class ChatScreen extends HookConsumerWidget {
               child: messages.when(
                 data: (dynamicMsgs) => staticMessages.when(
                   data: (historyMsgs) {
-                    final allMessages = [...dynamicMsgs.reversed, ...historyMsgs.reversed];
+                    final allMessages = [
+                      ...dynamicMsgs.reversed,
+                      ...historyMsgs.reversed,
+                    ];
                     if (allMessages.isEmpty) {
                       return const Center(child: Text("No messages Yet"));
                     }
                     return ListView.builder(
+                      controller: scrollcontroller,
                       reverse: true,
                       itemCount: allMessages.length,
                       itemBuilder: (context, index) {

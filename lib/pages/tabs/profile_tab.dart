@@ -32,6 +32,7 @@ class ProfileTab extends HookConsumerWidget {
                       ),
                     )
                   : null,
+                  
             ),
 
             Text(
@@ -52,6 +53,21 @@ class ProfileTab extends HookConsumerWidget {
 
             Text(
               p.bio,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            Text(
+              p.gender,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            Text(
+              p.createdAt != null ? p.createdAt!.toUtc().toString() : "N/A",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            Text(
+              p.toString(),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),

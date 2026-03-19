@@ -3,9 +3,7 @@ import 'package:echochat/core/models/profile.dart';
 import 'package:echochat/core/singleton.dart';
 
 class ConversationService {
-  static final thresholdTime = DateTime.now().subtract(
-    const Duration(minutes: 10),
-  );
+  static DateTime get _thresholdTime => DateTime.now().toUtc().subtract(const Duration(minutes: 10));
 
   static Future<void> connectUser(Profile p) async {
     try {
@@ -22,10 +20,12 @@ class ConversationService {
   }
 
   static Stream<List<Conversation>> streamConversations({int limit = 20}) {
+    final tenMinutesAgo = _thresholdTime.toIso8601String();
+
     return supabase
         .from('conversation')
-        .stream(primaryKey: ['id', 'last_message'])
-        .gt('last_time', thresholdTime)
+        .stream(primaryKey: ['id'])
+        .gte('last_time', tenMinutesAgo)
         .order('last_time', ascending: false)
         .map((rows) => rows.map((row) => Conversation.fromJson(row)).toList());
   }
@@ -33,12 +33,14 @@ class ConversationService {
   static Future<List<Conversation>> getInitialConversations({
     int limit = 20,
   }) async {
+    final tenMinutesAgo = _thresholdTime.toIso8601String();
+
     final response = await supabase
-        .from('conversation')
-        .select()
-        .lt('last_time', thresholdTime)
-        .order('last_time', ascending: false)
-        .limit(limit);
+      .from('conversation')
+      .select()
+      .lt('last_time', tenMinutesAgo)
+      .order('last_time', ascending: false)
+      .limit(limit);
 
     return response.map((row) => Conversation.fromJson(row)).toList();
   }
