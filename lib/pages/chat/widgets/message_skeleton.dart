@@ -3,8 +3,9 @@ import 'package:flutter_skeleton_ui/flutter_skeleton_ui.dart';
 
 class MessageSkeleton extends StatelessWidget {
   final bool isMe;
+  final int widthOffset;
 
-  const MessageSkeleton({super.key, this.isMe = false});
+  const MessageSkeleton({super.key, this.isMe = false, this.widthOffset = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -12,11 +13,12 @@ class MessageSkeleton extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
         child: Row(
-          mainAxisAlignment:
-              isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+          mainAxisAlignment: isMe
+              ? MainAxisAlignment.end
+              : MainAxisAlignment.start,
           children: [
             Container(
-              width: 220,
+              width: 150 + widthOffset.toDouble(),
               height: 60,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(

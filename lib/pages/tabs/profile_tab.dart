@@ -1,4 +1,5 @@
 import 'package:echochat/core/providers/profile_provider.dart';
+import 'package:echochat/pages/edit/edit_profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -7,76 +8,134 @@ class ProfileTab extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.watch(profileInstanceProvider);
+    final profileAsync = ref.watch(profileInstanceProvider);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: profile.when(
-        data: (p) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 16,
-
+    return profileAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text("Error: $err")),
+      data: (profile) => SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
           children: [
-            CircleAvatar(
-              radius: 100,
-              backgroundImage: p.avatarUrl.isNotEmpty
-                  ? NetworkImage(p.avatarUrl)
-                  : null,
-              child: p.avatarUrl.isEmpty
-                  ? Text(
-                      p.name[0],
-                      style: const TextStyle(
-                        fontSize: 50,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  : null,
-                  
-            ),
+            // --- Header Section ---
+            Center(
+              child: Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer,
+                    backgroundImage: profile.avatarUrl.isNotEmpty
+                        ? NetworkImage(profile.avatarUrl)
+                        : null,
+                    child: profile.avatarUrl.isEmpty
+                        ? Text(
+                            profile.name[0],
+                            style: const TextStyle(fontSize: 40),
+                          )
+                        : null,
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: FloatingActionButton.small(
+                      shape: CircleBorder(
+                        side: BorderSide.none,
 
+                        // : BorderRadius.circular(8),
+                      ),
+
+                      onPressed: () => {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditProfilePage(),
+                          ),
+                        ),
+                      },
+                      child: const Icon(Icons.edit, size: 18),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
             Text(
-              textAlign: TextAlign.center,
-              p.name,
+              profile.name,
               style: Theme.of(
                 context,
-              ).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w500),
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              profile.email,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
             ),
 
-            Text(
-              p.id,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            const SizedBox(height: 24),
 
-            ListTile(leading: const Icon(Icons.email), title: Text(p.email)),
+            // --- Details Section ---
+            Card(
+              elevation: 0,
 
-            Text(
-              p.bio,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            Text(
-              p.gender,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            Text(
-              p.createdAt != null ? p.createdAt!.toUtc().toString() : "N/A",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            Text(
-              p.toString(),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                children: [
+                  _ProfileLink(
+                    icon: Icons.person_outline,
+                    label: "Gender",
+                    value: profile.gender,
+                  ),
+                  const Divider(height: 1),
+                  _ProfileLink(
+                    icon: Icons.info_outline,
+                    label: "Bio",
+                    value: profile.bio,
+                  ),
+                  const Divider(height: 1),
+                  _ProfileLink(
+                    icon: Icons.calendar_today_outlined,
+                    label: "Joined",
+                    value:
+                        profile.createdAt?.toLocal().toString().split(' ')[0] ??
+                        "N/A",
+                  ),
+                ],
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
 
-        loading: () => const Center(child: CircularProgressIndicator()),
+class _ProfileLink extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
 
-        error: (e, st) => const Center(child: Text("Error loading profile")),
+  const _ProfileLink({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon, size: 20),
+      title: Text(
+        label,
+        style: const TextStyle(fontSize: 13, color: Colors.grey),
+      ),
+      subtitle: Text(
+        value,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
       ),
     );
   }

@@ -8,11 +8,11 @@ sealed class Profile with _$Profile {
   factory Profile({
     required String id,
     required String email,
-   @Default('') String name,
-    DateTime? createdAt,
+    @Default('') String name,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
     @Default('') String bio,
     @Default('') String gender,
-    @Default('') String avatarUrl,
+    @JsonKey(name: 'avatar_url') @Default('') String avatarUrl,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, dynamic> json) =>

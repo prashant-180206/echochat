@@ -1,0 +1,35 @@
+import 'package:echochat/core/singleton.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class FileUtils {
+  static Future<String> uploadProfileAvatarAndGetLink() async {
+    try {
+      final image = await imagePicker.pickImage(source: ImageSource.gallery);
+      if (image == null) {
+        logger.w("No image selected");
+        return "";
+      }
+
+      final bytes = await image.readAsBytes();
+
+      await supabase.storage
+          .from('avatars')
+          .uploadBinary(
+            "${supabase.auth.currentUser!.id}.${image.name}",
+            bytes,
+            fileOptions: FileOptions(cacheControl: "3600", upsert: true),
+          );
+      logger.d("File uploaded: ${image.name}");
+      final publicUrl = supabase.storage
+          .from("avatars")
+          .getPublicUrl("${supabase.auth.currentUser!.id}.${image.name}" );
+
+      logger.d("Public URL: $publicUrl");
+      return publicUrl;
+    } catch (e) {
+      logger.e("File upload failed: $e");
+      rethrow;
+    }
+  }
+}

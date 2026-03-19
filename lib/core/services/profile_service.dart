@@ -29,9 +29,6 @@ class ProfileService {
           .update(updatedProfile.toJson())
           .eq("id", supabase.auth.currentUser!.id);
 
-      logger.d(
-        "ProfileService: updateUserProfile: Updated profile for user ${supabase.auth.currentUser!.email}",
-      );
     } catch (e) {
       logger.e(
         "ProfileService: updateUserProfile: Error updating profile for user ${supabase.auth.currentUser!.email}: $e",

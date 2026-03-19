@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:echochat/core/models/conversation.dart';
 import 'package:echochat/core/providers/message_provider.dart';
 import 'package:echochat/pages/chat/widgets/message_bubble.dart';
@@ -20,6 +22,7 @@ class ChatScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final messages = ref.watch(dynamicMessagesProvider(conversationId));
+    final random = useMemoized(() => Random());
     final staticMessages = ref.watch(messageHistoryProvider(conversationId));
 
     final scrollcontroller = useScrollController();
@@ -66,14 +69,14 @@ class ChatScreen extends HookConsumerWidget {
                   loading: () => ListView.builder(
                     itemCount: 6,
                     itemBuilder: (context, index) =>
-                        MessageSkeleton(isMe: index % 2 == 0),
+                        MessageSkeleton(isMe: index % 2 == 0, widthOffset: random.nextInt(100)),
                   ),
                 ),
                 // REMOVED: The Expanded widget that was here before
                 loading: () => ListView.builder(
-                  itemCount: 12,
+                  itemCount: 6,
                   itemBuilder: (context, index) =>
-                      MessageSkeleton(isMe: index % 2 == 0),
+                      MessageSkeleton(isMe: index % 2 == 0, widthOffset: random.nextInt(100)),
                 ),
                 error: (e, st) =>
                     const Center(child: Text('Error loading messages')),

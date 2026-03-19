@@ -1,5 +1,6 @@
 import 'package:echochat/core/models/profile.dart';
 import 'package:echochat/core/services/profile_service.dart';
+import 'package:echochat/core/singleton.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'profile_provider.g.dart';
@@ -17,6 +18,7 @@ class ProfileInstance extends _$ProfileInstance {
       await ProfileService.updateUserProfile(updatedProfile);
       state = AsyncValue.data(updatedProfile);
     } catch (e) {
+      logger.e("Failed to update profile: $e");
       state = AsyncValue.error(e, StackTrace.current);
     }
   }
@@ -27,6 +29,7 @@ class ProfileInstance extends _$ProfileInstance {
       final profile = await ProfileService.getUserProfile();
       state = AsyncValue.data(profile);
     } catch (e) {
+      logger.e("Failed to refresh profile: $e");
       state = AsyncValue.error(e, StackTrace.current);
     }
   }
