@@ -1,5 +1,5 @@
 import 'package:echochat/core/singleton.dart';
-import 'package:echochat/pages/landing_page.dart';
+import 'package:echochat/screens/landing_screen.dart';
 import 'package:flutter/material.dart';
 
 class SettingsTab extends StatelessWidget {
@@ -165,7 +165,7 @@ class SettingsTab extends StatelessWidget {
 
                   if (context.mounted) {
                     Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => const LandingPage()),
+                      MaterialPageRoute(builder: (_) => const LandingScreen()),
                       (route) => false,
                     );
                   }

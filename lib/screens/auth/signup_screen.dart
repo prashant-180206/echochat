@@ -1,17 +1,17 @@
 import 'package:echochat/core/services/auth_service.dart';
-import 'package:echochat/pages/auth/login_page.dart';
-import 'package:echochat/pages/auth/widget/signup_form.dart';
+import 'package:echochat/screens/auth/login_screen.dart';
+import 'package:echochat/screens/auth/widget/signup_form.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<SignupPage> createState() => _SignupPageState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _SignupScreenState extends State<SignupScreen> {
   final supabase = Supabase.instance.client;
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class _SignupPageState extends State<SignupPage> {
                   if (context.mounted) {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
                     );
                   }
                   return true;

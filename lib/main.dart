@@ -1,7 +1,7 @@
 import 'package:echochat/core/providers/app_theme_provider.dart';
 import 'package:echochat/core/singleton.dart';
-import 'package:echochat/pages/landing_page.dart';
-import 'package:echochat/pages/tab_page.dart';
+import 'package:echochat/screens/landing_screen.dart';
+import 'package:echochat/screens/tab_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -93,8 +93,8 @@ class MyApp extends ConsumerWidget {
       ),
       themeMode: thememode,
       home: supabase.auth.currentSession != null
-          ? const TabPage()
-          : const LandingPage(),
+          ? const TabScreen()
+          : const LandingScreen(),
     );
   }
 }

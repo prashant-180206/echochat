@@ -1,7 +1,7 @@
 import 'package:echochat/core/models/conversation.dart';
 import 'package:echochat/core/services/conversation_service.dart';
 import 'package:echochat/core/singleton.dart';
-import 'package:echochat/pages/chat/chat_screen.dart';
+import 'package:echochat/screens/chat/chat_screen.dart';
 import 'package:echochat/utils/widgets/profile_view_avatar.dart';
 import 'package:flutter/material.dart';
 

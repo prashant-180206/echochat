@@ -1,5 +1,5 @@
 import 'package:echochat/core/providers/profile_provider.dart';
-import 'package:echochat/pages/edit/edit_profile_page.dart';
+import 'package:echochat/screens/edit/edit_profile_screen.dart';
 import 'package:echochat/utils/widgets/profile_view_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -40,7 +40,7 @@ class ProfileTab extends HookConsumerWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const EditProfilePage(),
+                            builder: (context) => const EditProfileScreen(),
                           ),
                         ),
                       },

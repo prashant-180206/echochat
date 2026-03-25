@@ -1,7 +1,7 @@
 import 'package:echochat/core/providers/conversation_provider.dart';
-import 'package:echochat/pages/tabs/widgets/conversation_tile.dart';
-import 'package:echochat/pages/tabs/widgets/error_display.dart';
-import 'package:echochat/pages/tabs/widgets/list_skeleton.dart';
+import 'package:echochat/screens/tabs/widgets/conversation_tile.dart';
+import 'package:echochat/screens/tabs/widgets/error_display.dart';
+import 'package:echochat/screens/tabs/widgets/list_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';

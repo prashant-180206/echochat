@@ -1,18 +1,18 @@
 import 'package:echochat/core/providers/app_theme_provider.dart';
-import 'package:echochat/pages/tabs/conversation_tab.dart';
-import 'package:echochat/pages/tabs/discover_tab.dart';
-import 'package:echochat/pages/tabs/profile_tab.dart';
-import 'package:echochat/pages/tabs/settings_tab.dart';
+import 'package:echochat/screens/tabs/conversation_tab.dart';
+import 'package:echochat/screens/tabs/discover_tab.dart';
+import 'package:echochat/screens/tabs/profile_tab.dart';
+import 'package:echochat/screens/tabs/settings_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TabPage extends ConsumerStatefulWidget {
-  const TabPage({super.key});
+class TabScreen extends ConsumerStatefulWidget {
+  const TabScreen({super.key});
   @override
-  ConsumerState<TabPage> createState() => _TabPageState();
+  ConsumerState<TabScreen> createState() => _TabPageState();
 }
 
-class _TabPageState extends ConsumerState<TabPage> {
+class _TabPageState extends ConsumerState<TabScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _tabs = const [
