@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class ProfileViewAvatar extends StatelessWidget {
@@ -66,13 +67,17 @@ class ProfileViewAvatar extends StatelessWidget {
 
       child: CircleAvatar(
         radius: size / 2,
-        backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
-        child: avatarUrl.isEmpty
-            ? Text(
+        child: avatarUrl.isNotEmpty
+            ? CachedNetworkImage(
+                imageUrl: avatarUrl,
+                fit: BoxFit.contain,
+                placeholder: (context, url) => CircularProgressIndicator(),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              )
+            : Text(
                 name.isNotEmpty ? name[0].toUpperCase() : '?',
                 style: const TextStyle(fontWeight: FontWeight.bold),
-              )
-            : null,
+              ),
       ),
     );
   }

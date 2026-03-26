@@ -6,7 +6,7 @@ import 'package:echochat/core/singleton.dart';
 import 'package:echochat/screens/chat/widgets/message_bubble.dart';
 import 'package:echochat/screens/chat/widgets/message_input.dart';
 import 'package:echochat/screens/chat/widgets/message_skeleton.dart';
-import 'package:echochat/screens/person/person_info_screen.dart';
+import 'package:echochat/utils/widgets/person_info_screen.dart';
 import 'package:echochat/screens/tabs/widgets/error_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';

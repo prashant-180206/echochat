@@ -26,7 +26,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final thememode = ref.watch(appThemeProvider);  return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'EchoChat',
       theme: ThemeData(
         useMaterial3: true,
         appBarTheme: const AppBarTheme(
