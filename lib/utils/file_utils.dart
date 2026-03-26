@@ -44,12 +44,10 @@ class FileUtils {
 
       final bytes = await image.readAsBytes();
 
-      // ✅ Clean filename (no folder duplication)
       final fileName = '${DateTime.now().millisecondsSinceEpoch}_${image.name}';
 
       final bucket = supabase.storage.from('images');
 
-      // ✅ Upload to SAME bucket
       await bucket.uploadBinary(
         fileName,
         bytes,
@@ -58,7 +56,6 @@ class FileUtils {
 
       logger.d("File uploaded: $fileName");
 
-      // ✅ Get URL from SAME bucket
       final publicUrl = bucket.getPublicUrl(fileName);
 
       logger.d("Public URL: $publicUrl");

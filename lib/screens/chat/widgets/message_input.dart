@@ -1,16 +1,18 @@
-import 'package:echochat/core/services/message_service.dart';
-import 'package:echochat/core/singleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class MessageInput extends HookConsumerWidget {
-  final int conversationId;
+class MessageInput extends HookWidget {
+  final Function(String) onSendPressed;
+  final Function() onImageSendPressed;
 
-  const MessageInput({super.key, required this.conversationId});
+  const MessageInput({
+    super.key,
+    required this.onSendPressed,
+    required this.onImageSendPressed,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
@@ -23,11 +25,8 @@ class MessageInput extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             IconButton(
-              onPressed: ()  {
-                   logger.d("Send Image button pressed ");
-                MessageService.sendImageMessage(
-                  conversationId: conversationId,
-                );
+              onPressed: () {
+                onImageSendPressed();
               },
               icon: const Icon(Icons.image),
               color: colorScheme.onSurfaceVariant,
@@ -61,19 +60,93 @@ class MessageInput extends HookConsumerWidget {
             IconButton(
               iconSize: 28,
               onPressed: () {
-                final text = controller.text.trim();
-                if (text.isEmpty) return;
-
-                logger.d("Send button pressed with message: $text");
-                MessageService.sendMessage(
-                  conversationId: conversationId,
-                  content: text,
-                 
-                );
+                onSendPressed(controller.text.trim());
                 controller.clear();
               },
               icon: const Icon(Icons.send),
               color: colorScheme.primary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MessageEditInput extends HookWidget {
+  final String initialText;
+  final Function(String) onEditCompleted;
+  final Function() onEditCancel;
+
+  const MessageEditInput({
+    super.key,
+    required this.initialText,
+    required this.onEditCompleted,
+    required this.onEditCancel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    final controller = useTextEditingController();
+    controller.text = initialText;
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Text(
+              initialText,
+              style: textTheme.labelMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: () => onEditCancel(),
+                  icon: Icon(Icons.cancel),
+                ),
+
+                Expanded(
+                  child: Container(
+                    // padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceDim,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: TextField(
+                      controller: controller,
+                      minLines: 1,
+                      maxLines: 5,
+                      style: textTheme.bodyMedium?.copyWith(
+                        // color: colorScheme.onSurface,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: "Message",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(100),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                IconButton(
+                  iconSize: 28,
+                  onPressed: () {
+                    onEditCompleted(controller.text.trim());
+                    controller.clear();
+                  },
+                  icon: const Icon(Icons.send),
+                  color: colorScheme.primary,
+                ),
+              ],
             ),
           ],
         ),

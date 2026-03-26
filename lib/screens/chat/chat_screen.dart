@@ -1,7 +1,8 @@
 import 'dart:math';
-
 import 'package:echochat/core/models/conversation.dart';
 import 'package:echochat/core/providers/message_provider.dart';
+import 'package:echochat/core/services/message_service.dart';
+import 'package:echochat/core/singleton.dart';
 import 'package:echochat/screens/chat/widgets/message_bubble.dart';
 import 'package:echochat/screens/chat/widgets/message_input.dart';
 import 'package:echochat/screens/chat/widgets/message_skeleton.dart';
@@ -21,6 +22,9 @@ class ChatScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isEditingMessage = useState(false);
+    final editMsgContent = useState("");
+    final editMsgId = useState(0);
     final messages = ref.watch(dynamicMessagesProvider(conversationId));
     final random = useMemoized(() => Random());
     final staticMessages = ref.watch(messageHistoryProvider(conversationId));
@@ -61,22 +65,37 @@ class ChatScreen extends HookConsumerWidget {
                       itemCount: allMessages.length,
                       itemBuilder: (context, index) {
                         final message = allMessages[index];
-                        return MessageBubble(message: message);
+                        return MessageBubble(
+                          message: message,
+                          onMessageDeleted: (msgId) {
+                            logger.d("Message with ID $msgId deleted");
+                          },
+                          onEditMessagePressed: (msgId) {
+                            logger.d("Edit pressed for message ID $msgId");
+                            editMsgContent.value = message.content;
+                            editMsgId.value = message.id;
+                            isEditingMessage.value = true;
+                          },
+                        );
                       },
                     );
                   },
                   error: (e, s) => ErrorDisplay(error: e, stackTrace: s),
                   loading: () => ListView.builder(
                     itemCount: 6,
-                    itemBuilder: (context, index) =>
-                        MessageSkeleton(isMe: index % 2 == 0, widthOffset: random.nextInt(100)),
+                    itemBuilder: (context, index) => MessageSkeleton(
+                      isMe: index % 2 == 0,
+                      widthOffset: random.nextInt(100),
+                    ),
                   ),
                 ),
                 // REMOVED: The Expanded widget that was here before
                 loading: () => ListView.builder(
                   itemCount: 6,
-                  itemBuilder: (context, index) =>
-                      MessageSkeleton(isMe: index % 2 == 0, widthOffset: random.nextInt(100)),
+                  itemBuilder: (context, index) => MessageSkeleton(
+                    isMe: index % 2 == 0,
+                    widthOffset: random.nextInt(100),
+                  ),
                 ),
                 error: (e, st) =>
                     const Center(child: Text('Error loading messages')),
@@ -84,7 +103,33 @@ class ChatScreen extends HookConsumerWidget {
             ),
 
             // The Send Message Input (Stays at the bottom)
-            MessageInput(conversationId: conversationId),
+            isEditingMessage.value
+                ? MessageEditInput(
+                    initialText: editMsgContent.value,
+                    onEditCompleted: (msg) {
+                      MessageService.editTextMessage(editMsgId.value, msg);
+                    },
+                    onEditCancel: () {
+                      isEditingMessage.value = false;
+                      editMsgContent.value = "";
+                      editMsgId.value = 0;
+                    },
+                  )
+                : MessageInput(
+                    onSendPressed: (text) {
+                      logger.d("Send button pressed with message: $text");
+                      MessageService.sendMessage(
+                        conversationId: conversationId,
+                        content: text,
+                      );
+                    },
+                    onImageSendPressed: () {
+                      logger.d("Send Image button pressed ");
+                      MessageService.sendImageMessage(
+                        conversationId: conversationId,
+                      );
+                    },
+                  ),
           ],
         ),
       ),

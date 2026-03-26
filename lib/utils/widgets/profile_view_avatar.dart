@@ -19,43 +19,40 @@ class ProfileViewAvatar extends StatelessWidget {
       context: context,
       barrierColor: Colors.black.withAlpha((255 * 0.9).toInt()),
       builder: (_) {
-        return GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Dialog(
-            backgroundColor: Colors.transparent,
-            insetPadding: const EdgeInsets.all(16),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Positioned.fill(
-                  child: Container(
-                    color: Colors.transparent,
-                    width: double.infinity,
-                    height: double.infinity,
-                  ),
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(16),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned.fill(
+                child: Container(
+                  color: Colors.transparent,
+                  width: double.infinity,
+                  height: double.infinity,
                 ),
+              ),
 
-                Center(
-                  child: Container(
-                    color: Theme.of(context).colorScheme.surface,
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    height: MediaQuery.of(context).size.width * 0.8,
-                    child: InteractiveViewer(
-                      child: Image.network(avatarUrl, fit: BoxFit.contain),
-                    ),
+              Center(
+                child: Container(
+                  color: Theme.of(context).colorScheme.surface,
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  height: MediaQuery.of(context).size.width * 0.8,
+                  child: InteractiveViewer(
+                    child: Image.network(avatarUrl, fit: BoxFit.contain),
                   ),
                 ),
+              ),
 
-                Positioned(
-                  top: 40,
-                  right: 16,
-                  child: IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
-                  ),
+              Positioned(
+                top: 40,
+                right: 16,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

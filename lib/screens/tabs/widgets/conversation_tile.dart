@@ -2,6 +2,7 @@ import 'package:echochat/core/models/conversation.dart';
 import 'package:echochat/core/services/conversation_service.dart';
 import 'package:echochat/core/singleton.dart';
 import 'package:echochat/screens/chat/chat_screen.dart';
+import 'package:echochat/utils/types.dart';
 import 'package:echochat/utils/widgets/profile_view_avatar.dart';
 import 'package:flutter/material.dart';
 
@@ -58,7 +59,9 @@ class ConversationTile extends StatelessWidget {
       ),
 
       subtitle: Text(
-        conversation.lastMessageContent,
+         (conversation.lastMessageType == MessageType.image.name)
+            ? "Image"
+            : conversation.lastMessageContent,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: textTheme.bodyMedium?.copyWith(

@@ -17,6 +17,8 @@ sealed class Message with _$Message {
 
     @JsonKey(name: 'sender_id') required String senderId,
 
+    @Default(false) bool edited ,
+
     @JsonKey(name: 'conversation_id') int? conversationId,
   }) = _Message;
 

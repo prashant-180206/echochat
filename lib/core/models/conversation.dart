@@ -1,3 +1,4 @@
+import 'package:echochat/utils/types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'conversation.freezed.dart';
@@ -26,7 +27,7 @@ sealed class Conversation with _$Conversation {
     @JsonKey(name: 'last_message_content')
     @Default('')
     String lastMessageContent,
-    @JsonKey(name: 'last_message_type') @Default('text') String lastMessageType,
+    @JsonKey(name: 'last_message_type') @Default(MessageType.text) MessageType lastMessageType,
     @JsonKey(name: 'last_message_sender_id') String? lastMessageSenderId,
 
     // NEW: The list of members

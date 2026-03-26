@@ -59,7 +59,6 @@ class MessageService {
         .map<Message>((row) => Message.fromJson(row))
         .toList();
 
-    // Reverse to maintain ascending order in UI
     return messages.reversed.toList();
   }
 
@@ -111,10 +110,10 @@ class MessageService {
     await supabase.from('message').delete().eq('id', messageId);
   }
 
-  static Future<void> editMessage(int messageId, String newContent) async {
+  static Future<void> editTextMessage(int messageId, String newContent) async {
     await supabase
         .from('message')
-        .update({'content': newContent})
+        .update({'content': newContent, 'edited': true})
         .eq('id', messageId);
   }
 }
