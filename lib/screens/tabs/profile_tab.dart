@@ -1,5 +1,6 @@
 import 'package:echochat/core/providers/profile_provider.dart';
 import 'package:echochat/screens/edit/edit_profile_screen.dart';
+import 'package:echochat/screens/person/widget/profile_info_skeleton.dart';
 import 'package:echochat/utils/widgets/profile_view_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -12,7 +13,7 @@ class ProfileTab extends HookConsumerWidget {
     final profileAsync = ref.watch(profileInstanceProvider);
 
     return profileAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => PersonInfoSkeleton(),
       error: (err, stack) => Center(child: Text("Error: $err")),
       data: (profile) => SingleChildScrollView(
         padding: const EdgeInsets.all(20),

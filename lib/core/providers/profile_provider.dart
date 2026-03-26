@@ -34,3 +34,8 @@ class ProfileInstance extends _$ProfileInstance {
     }
   }
 }
+
+@riverpod
+FutureOr<Profile> profileWithId(Ref ref, String id) async {
+  return await ProfileService.getUserProfilewithId(id);
+}

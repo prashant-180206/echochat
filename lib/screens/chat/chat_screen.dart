@@ -6,6 +6,7 @@ import 'package:echochat/core/singleton.dart';
 import 'package:echochat/screens/chat/widgets/message_bubble.dart';
 import 'package:echochat/screens/chat/widgets/message_input.dart';
 import 'package:echochat/screens/chat/widgets/message_skeleton.dart';
+import 'package:echochat/screens/person/person_info_screen.dart';
 import 'package:echochat/screens/tabs/widgets/error_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -44,7 +45,37 @@ class ChatScreen extends HookConsumerWidget {
     }, [scrollcontroller, conversationId]);
 
     return Scaffold(
-      appBar: AppBar(title: Text(otherUser.name)), // Accessing otherUser name
+      appBar: AppBar(
+        title: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PersonInfoScreen(userId: otherUser.id),
+              ),
+            );
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(otherUser.name), // Accessing otherUser name
+              Text(
+                "Last seen recently", // Placeholder for last seen
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: CircleAvatar(
+            child: otherUser.avatarUrl != ""
+                ? Image.network(otherUser.avatarUrl)
+                : Text(otherUser.name[0]),
+          ),
+        ), // Displaying the first letter of the name if no avatar
+      ), // Accessing otherUser name
       body: SafeArea(
         child: Column(
           children: [
@@ -69,6 +100,7 @@ class ChatScreen extends HookConsumerWidget {
                           message: message,
                           onMessageDeleted: (msgId) {
                             logger.d("Message with ID $msgId deleted");
+                            allMessages.removeWhere((msg) => msg.id == msgId);
                           },
                           onEditMessagePressed: (msgId) {
                             logger.d("Edit pressed for message ID $msgId");
@@ -108,6 +140,7 @@ class ChatScreen extends HookConsumerWidget {
                     initialText: editMsgContent.value,
                     onEditCompleted: (msg) {
                       MessageService.editTextMessage(editMsgId.value, msg);
+                      isEditingMessage.value = false;
                     },
                     onEditCancel: () {
                       isEditingMessage.value = false;

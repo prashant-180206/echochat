@@ -82,6 +82,7 @@ class MessageBubble extends StatelessWidget {
                     icon: Icon(Icons.edit),
                     onPressed: () {
                       onEditMessagePressed(message.id);
+                      Navigator.pop(context);
                     },
                   )
                 : const SizedBox.shrink(),
