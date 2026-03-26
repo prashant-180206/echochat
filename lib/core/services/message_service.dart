@@ -1,5 +1,7 @@
 import 'package:echochat/core/models/message.dart';
 import 'package:echochat/core/singleton.dart';
+import 'package:echochat/utils/file_utils.dart';
+import 'package:echochat/utils/types.dart';
 
 class MessageService {
   static DateTime get _threshold =>
@@ -64,7 +66,7 @@ class MessageService {
   static Future<Message> sendMessage({
     required int conversationId,
     required String content,
-    String type = "text",
+
   }) async {
     final currentUserId = supabase.auth.currentUser!.id;
 
@@ -74,10 +76,33 @@ class MessageService {
           'conversation_id': conversationId,
           'content': content,
           'sender_id': currentUserId,
-          'type': type,
+          'type': MessageType.text.name,
         })
         .select()
         .single();
+
+
+
+    return Message.fromJson(response);
+  }
+
+  static Future<Message> sendImageMessage({required int conversationId}) async {
+    final currentUserId = supabase.auth.currentUser!.id;
+
+    final imageUrl = await FileUtils.uploadMessageImageAndGetLink();
+
+    final response = await supabase
+        .from('message')
+        .insert({
+          'conversation_id': conversationId,
+          'content': imageUrl,
+          'sender_id': currentUserId,
+          'type': MessageType.image.name,
+        })
+        .select()
+        .single();
+
+    logger.d("Image message sent with URL: $imageUrl");
 
     return Message.fromJson(response);
   }

@@ -1,5 +1,6 @@
 import 'package:echochat/core/models/message.dart';
 import 'package:echochat/core/singleton.dart';
+import 'package:echochat/utils/types.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -37,12 +38,18 @@ class MessageBubble extends StatelessWidget {
           borderRadius: BorderRadius.circular(12.0),
         ),
 
-        child: Column(
-          crossAxisAlignment: isMe
-              ? CrossAxisAlignment.end
-              : CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
+        child:message.type.name == MessageType.image.name
+            ? Image.network(
+                message.content,
+                height: 200,
+                fit: BoxFit.cover,
+              )
+            : Column(
+                crossAxisAlignment: isMe
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
             Text(
               message.content,
               style: textTheme.bodyMedium?.copyWith(color: textColor),

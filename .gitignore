@@ -51,3 +51,5 @@ app.*.map.json
 
 # Ignore all .g.dart files inside lib/
 *.g.dart
+
+.vscode/

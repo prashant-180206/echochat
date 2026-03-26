@@ -23,8 +23,13 @@ class MessageInput extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.attach_file),
+              onPressed: ()  {
+                   logger.d("Send Image button pressed ");
+                MessageService.sendImageMessage(
+                  conversationId: conversationId,
+                );
+              },
+              icon: const Icon(Icons.image),
               color: colorScheme.onSurfaceVariant,
             ),
 
@@ -60,12 +65,11 @@ class MessageInput extends HookConsumerWidget {
                 if (text.isEmpty) return;
 
                 logger.d("Send button pressed with message: $text");
-
                 MessageService.sendMessage(
                   conversationId: conversationId,
                   content: text,
+                 
                 );
-
                 controller.clear();
               },
               icon: const Icon(Icons.send),

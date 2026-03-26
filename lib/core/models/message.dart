@@ -1,3 +1,4 @@
+import 'package:echochat/utils/types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'message.freezed.dart';
@@ -8,20 +9,15 @@ sealed class Message with _$Message {
   factory Message({
     required int id,
 
-    @JsonKey(name: 'created_at')
-    required DateTime createdAt,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
 
-    @Default('')
-    String content,
+    @Default('') String content,
 
-    @Default('text')
-    String type,
+    @Default(MessageType.text) MessageType type,
 
-    @JsonKey(name: 'sender_id')
-    required String senderId,
+    @JsonKey(name: 'sender_id') required String senderId,
 
-    @JsonKey(name: 'conversation_id')
-    int? conversationId,
+    @JsonKey(name: 'conversation_id') int? conversationId,
   }) = _Message;
 
   factory Message.fromJson(Map<String, dynamic> json) =>
