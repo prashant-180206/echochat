@@ -205,7 +205,7 @@ class ImageContent extends StatelessWidget {
           width: 200,
           height: 200,
           child: CachedNetworkImage(
-            fit: BoxFit.contain,
+            fit: BoxFit.cover,
             imageUrl: message.content,
             placeholder: (context, url) => CircularProgressIndicator(),
             errorWidget: (context, url, error) => Icon(Icons.error),

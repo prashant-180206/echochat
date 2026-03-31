@@ -59,7 +59,7 @@ class ConversationTile extends StatelessWidget {
       ),
 
       subtitle: Text(
-         (conversation.lastMessageType == MessageType.image.name)
+         (conversation.lastMessageType.name == MessageType.image.name)
             ? "Image"
             : conversation.lastMessageContent,
         maxLines: 1,

@@ -35,7 +35,7 @@ class MyApp extends ConsumerWidget {
           backgroundColor: Color.fromARGB(255, 80, 162, 251),
         ),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 80, 162, 251),
+          seedColor: const Color.fromARGB(255, 113, 181, 254),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
