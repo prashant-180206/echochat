@@ -15,6 +15,8 @@ class LoginForm extends HookWidget {
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
     final showPassword = useState(false);
+    final isLoading = useState(false);
+
     return Form(
       key: _formKey,
       child: Column(
@@ -34,6 +36,7 @@ class LoginForm extends HookWidget {
               prefixIcon: const Icon(Icons.email),
             ),
             controller: emailController,
+            enabled: !isLoading.value,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return "Email is required";
@@ -52,15 +55,18 @@ class LoginForm extends HookWidget {
               labelText: "Password",
               prefixIcon: const Icon(Icons.lock),
               suffixIcon: IconButton(
-                onPressed: () {
-                  showPassword.value = !showPassword.value;
-                },
+                onPressed: isLoading.value
+                    ? null
+                    : () {
+                        showPassword.value = !showPassword.value;
+                      },
                 icon: Icon(
                   showPassword.value ? Icons.visibility_off : Icons.visibility,
                 ),
               ),
             ),
             controller: passwordController,
+            enabled: !isLoading.value,
             obscureText: !showPassword.value,
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -73,12 +79,30 @@ class LoginForm extends HookWidget {
             },
           ),
           ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                onLogin(emailController.text, passwordController.text);
-              }
-            },
-            child: const Text("Login"),
+            onPressed: isLoading.value
+                ? null
+                : () async {
+                    if (_formKey.currentState!.validate()) {
+                      isLoading.value = true;
+                      try {
+                        await onLogin(
+                          emailController.text,
+                          passwordController.text,
+                        );
+                      } finally {
+                        if (context.mounted) {
+                          isLoading.value = false;
+                        }
+                      }
+                    }
+                  },
+            child: isLoading.value
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text("Login"),
           ),
         ],
       ),

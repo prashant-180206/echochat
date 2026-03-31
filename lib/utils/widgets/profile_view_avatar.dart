@@ -16,47 +16,12 @@ class ProfileViewAvatar extends StatelessWidget {
   void _showAvatarDialog(BuildContext context) {
     if (avatarUrl.isEmpty) return;
 
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withAlpha((255 * 0.9).toInt()),
-      builder: (_) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(16),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Positioned.fill(
-                child: Container(
-                  color: Colors.transparent,
-                  width: double.infinity,
-                  height: double.infinity,
-                ),
-              ),
-
-              Center(
-                child: Container(
-                  color: Theme.of(context).colorScheme.surface,
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: MediaQuery.of(context).size.width * 0.8,
-                  child: InteractiveViewer(
-                    child: Image.network(avatarUrl, fit: BoxFit.contain),
-                  ),
-                ),
-              ),
-
-              Positioned(
-                top: 40,
-                right: 16,
-                child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (_, _, _) => _AvatarViewer(avatarUrl: avatarUrl),
+      ),
     );
   }
 
@@ -64,20 +29,91 @@ class ProfileViewAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => _showAvatarDialog(context),
-
       child: CircleAvatar(
         radius: size / 2,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         child: avatarUrl.isNotEmpty
-            ? CachedNetworkImage(
-                imageUrl: avatarUrl,
-                fit: BoxFit.contain,
-                placeholder: (context, url) => CircularProgressIndicator(),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
+            ? ClipOval(
+                child: Hero(
+                  tag: avatarUrl,
+                  child: CachedNetworkImage(
+                    imageUrl: avatarUrl,
+                    width: size,
+                    height: size,
+                    fit: BoxFit.cover,
+                    placeholder: (_, _) => const SizedBox(),
+                    errorWidget: (_, _, _) => const Icon(Icons.person),
+                  ),
+                ),
               )
             : Text(
                 name.isNotEmpty ? name[0].toUpperCase() : '?',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
+      ),
+    );
+  }
+}
+
+class _AvatarViewer extends StatelessWidget {
+  final String avatarUrl;
+
+  const _AvatarViewer({required this.avatarUrl});
+
+  @override
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black.withAlpha(220),
+      body: Stack(
+        children: [
+          Center(
+            child: Hero(
+              tag: avatarUrl,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return InteractiveViewer(
+                    minScale: 1,
+                    maxScale: 5,
+                    child: Center(
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        child: SizedBox(
+                          width: constraints.maxWidth,
+                          height: constraints.maxHeight,
+                          child: CachedNetworkImage(
+                            imageUrl: avatarUrl,
+                            fit: BoxFit.contain,
+                            placeholder: (_, _) => const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            ),
+                            errorWidget: (_, _, _) => const Icon(
+                              Icons.broken_image,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+
+          // Close button
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            right: 12,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ],
       ),
     );
   }

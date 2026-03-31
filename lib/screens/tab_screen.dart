@@ -14,35 +14,52 @@ class TabScreen extends HookWidget {
     ProfileTab(),
     SettingsTab(),
   ];
-  
+
   @override
   Widget build(BuildContext context) {
     final currentIndex = useState(0);
-  
+
+    final titles = ["EchoChat", "Discover", "Profile", "Settings"];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("EchoChat"),
-        foregroundColor: Colors.white,
-       
+        title: Text(titles[currentIndex.value]),
+        actions: [
+          if (currentIndex.value == 0)
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                currentIndex.value = 1;
+              },
+            ),
+        ],
       ),
-      body: _tabs[currentIndex.value],
 
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: currentIndex.value,
-        onTap: (value) {
+      body: IndexedStack(
+        index: currentIndex.value,
+        children: _tabs,
+      ),
+
+      floatingActionButton: currentIndex.value == 0
+          ? FloatingActionButton(
+              onPressed: () {
+                currentIndex.value = 1;
+              },
+              child: const Icon(Icons.add_comment),
+            )
+          : null,
+
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: currentIndex.value,
+        onDestinationSelected: (value) {
           currentIndex.value = value;
         },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chats"),
-          BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Discover"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: "Settings",
-          ),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.chat), label: "Chats"),
+          NavigationDestination(icon: Icon(Icons.explore), label: "Discover"),
+          NavigationDestination(icon: Icon(Icons.person), label: "Profile"),
+          NavigationDestination(icon: Icon(Icons.settings), label: "Settings"),
         ],
-        
       ),
     );
   }

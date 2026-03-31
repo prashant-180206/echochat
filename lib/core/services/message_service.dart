@@ -116,4 +116,29 @@ class MessageService {
         .update({'content': newContent, 'edited': true})
         .eq('id', messageId);
   }
+
+  static Future<void> setReaction({
+  required int messageId,
+  required String reaction,
+}) async {
+  final userId = supabase.auth.currentUser!.id;
+
+  await supabase
+      .from('message')
+      .update({
+        'reaction': reaction,
+        'reacted_by': userId,
+      })
+      .eq('id', messageId);
+}
+
+  static Future<void> removeReaction(int messageId) async {
+    await supabase
+        .from('message')
+        .update({
+          'reaction': null,
+          'reacted_by': null,
+        })
+        .eq('id', messageId);
+  }
 }

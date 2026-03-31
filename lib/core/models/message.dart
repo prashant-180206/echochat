@@ -8,18 +8,15 @@ part 'message.g.dart';
 sealed class Message with _$Message {
   factory Message({
     required int id,
-
     @JsonKey(name: 'created_at') required DateTime createdAt,
-
     @Default('') String content,
-
     @Default(MessageType.text) MessageType type,
-
     @JsonKey(name: 'sender_id') required String senderId,
-
-    @Default(false) bool edited ,
-
+    @Default(false) bool edited,
     @JsonKey(name: 'conversation_id') int? conversationId,
+
+    String? reaction, 
+    @JsonKey(name: 'reacted_by') String? reactedBy, 
   }) = _Message;
 
   factory Message.fromJson(Map<String, dynamic> json) =>

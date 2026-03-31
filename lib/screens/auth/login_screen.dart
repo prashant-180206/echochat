@@ -3,17 +3,12 @@ import 'package:echochat/screens/auth/signup_screen.dart';
 import 'package:echochat/screens/auth/widget/login_form.dart';
 import 'package:echochat/screens/tab_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
+  // final supabase = Supabase.instance.client;
 
-class _LoginScreenState extends State<LoginScreen> {
-  final supabase = Supabase.instance.client;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,14 +27,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (!context.mounted) return;
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const TabScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const TabScreen(),
+                      ),
                     );
                   } catch (e) {
                     if (!context.mounted) return;
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text("Unexpected error occurred ${e.toString()}"),
+                        content: Text(
+                          "Unexpected error occurred ${e.toString()}",
+                        ),
                       ),
                     );
                   }

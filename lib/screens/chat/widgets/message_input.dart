@@ -42,7 +42,7 @@ class MessageInput extends HookWidget {
                 // padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: colorScheme.surfaceDim,
-                  borderRadius: BorderRadius.circular(100),
+                  borderRadius: BorderRadius.circular(24),
                 ),
                 child: TextField(
                   controller: controller,

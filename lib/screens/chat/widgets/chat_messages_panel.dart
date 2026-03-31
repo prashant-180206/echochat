@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:echochat/core/models/message.dart';
 import 'package:echochat/core/singleton.dart';
-import 'package:echochat/screens/chat/widgets/message_bubble.dart';
+import 'package:echochat/screens/chat/widgets/message_bubble/message_bubble.dart';
 import 'package:echochat/screens/chat/widgets/message_skeleton.dart';
 import 'package:echochat/screens/tabs/widgets/error_display.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +40,7 @@ class ChatMessagesPanel extends StatelessWidget {
           }
 
           return ListView.builder(
+            
             controller: scrollController,
             reverse: true,
             itemCount: allMessages.length,

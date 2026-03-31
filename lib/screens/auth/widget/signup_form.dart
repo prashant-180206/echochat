@@ -20,6 +20,7 @@ class SignUpForm extends HookWidget {
     final bioController = useTextEditingController();
     final gender = useState("Male");
     final showPassword = useState(false);
+    final isLoading = useState(false);
 
     return Form(
       key: _formKey,
@@ -38,6 +39,7 @@ class SignUpForm extends HookWidget {
           // Name
           TextFormField(
             controller: nameController,
+            enabled: !isLoading.value,
             decoration: inputDecoration.copyWith(
               labelText: "Name",
               prefixIcon: const Icon(Icons.person),
@@ -55,6 +57,7 @@ class SignUpForm extends HookWidget {
           ),
           TextFormField(
             controller: emailController,
+            enabled: !isLoading.value,
             decoration: inputDecoration.copyWith(
               labelText: "Email",
               prefixIcon: const Icon(Icons.email),
@@ -73,17 +76,20 @@ class SignUpForm extends HookWidget {
           // Password
           TextFormField(
             controller: passwordController,
+            enabled: !isLoading.value,
             obscureText: !showPassword.value,
             decoration: inputDecoration.copyWith(
               labelText: "Password",
               prefixIcon: const Icon(Icons.lock),
               suffixIcon: IconButton(
+                onPressed: isLoading.value
+                    ? null
+                    : () {
+                        showPassword.value = !showPassword.value;
+                      },
                 icon: Icon(
                   showPassword.value ? Icons.visibility_off : Icons.visibility,
                 ),
-                onPressed: () {
-                  showPassword.value = !showPassword.value;
-                },
               ),
             ),
             validator: (value) {
@@ -100,6 +106,7 @@ class SignUpForm extends HookWidget {
           // Bio
           TextFormField(
             controller: bioController,
+            enabled: !isLoading.value,
             decoration: inputDecoration.copyWith(labelText: "Bio"),
           ),
 
@@ -111,41 +118,58 @@ class SignUpForm extends HookWidget {
               DropdownMenuItem(value: "Female", child: Text("Female")),
               DropdownMenuItem(value: "Other", child: Text("Other")),
             ],
-            onChanged: (value) {
-              gender.value = value!;
-            },
+            onChanged: isLoading.value
+                ? null
+                : (value) {
+                    gender.value = value!;
+                  },
             decoration: inputDecoration.copyWith(labelText: "Gender"),
           ),
 
           // Submit
           ElevatedButton(
-            onPressed: () async {
-              if (_formKey.currentState!.validate()) {
-                bool result = await onSignUp(
-                  ProfileDataUpload(
-                    name: nameController.text.trim(),
-                    email: emailController.text.trim(),
-                    password: passwordController.text.trim(),
-                    bio: bioController.text.trim(),
-                    gender: gender.value,
-                  ),
-                );
-                if (!context.mounted) return;
-                if (result) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Account created successfully"),
-                    ),
-                  );
-                  // Navigator.pop(context);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Failed to create account")),
-                  );
-                }
-              }
-            },
-            child: const Text("Create Account"),
+            onPressed: isLoading.value
+                ? null
+                : () async {
+                    if (_formKey.currentState!.validate()) {
+                      isLoading.value = true;
+                      try {
+                        bool result = await onSignUp(
+                          ProfileDataUpload(
+                            name: nameController.text.trim(),
+                            email: emailController.text.trim(),
+                            password: passwordController.text.trim(),
+                            bio: bioController.text.trim(),
+                            gender: gender.value,
+                          ),
+                        );
+                        if (!context.mounted) return;
+                        if (result) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Account created successfully"),
+                            ),
+                          );
+                          // Navigator.pop(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Failed to create account")),
+                          );
+                        }
+                      } finally {
+                        if (context.mounted) {
+                          isLoading.value = false;
+                        }
+                      }
+                    }
+                  },
+            child: isLoading.value
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text("Create Account"),
           ),
         ],
       ),
