@@ -1,14 +1,13 @@
-import 'dart:math';
 import 'dart:async';
 import 'package:echochat/core/models/conversation.dart';
 import 'package:echochat/core/providers/message_provider.dart';
+import 'package:echochat/core/models/message.dart';
 import 'package:echochat/core/services/message_service.dart';
 import 'package:echochat/core/singleton.dart';
-import 'package:echochat/screens/chat/widgets/message_bubble.dart';
+import 'package:echochat/screens/chat/widgets/chat_header.dart';
+import 'package:echochat/screens/chat/widgets/chat_messages_panel.dart';
 import 'package:echochat/screens/chat/widgets/message_input.dart';
-import 'package:echochat/screens/chat/widgets/message_skeleton.dart';
-import 'package:echochat/utils/widgets/person_info_screen.dart';
-import 'package:echochat/screens/tabs/widgets/error_display.dart';
+import 'package:echochat/screens/chat/widgets/typing_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -34,7 +33,6 @@ class ChatScreen extends HookConsumerWidget {
     final channelRef = useRef<RealtimeChannel?>(null);
     final typingHideTimerRef = useRef<Timer?>(null);
     final messages = ref.watch(dynamicMessagesProvider(conversationId));
-    final random = useMemoized(() => Random());
     final staticMessages = ref.watch(messageHistoryProvider(conversationId));
     final currentUserId = supabase.auth.currentUser?.id;
 
@@ -70,24 +68,27 @@ class ChatScreen extends HookConsumerWidget {
       final channel = supabase.channel('chat-typing-$conversationId');
       channelRef.value = channel;
 
-      channel.onBroadcast(event: 'typing', callback: (payload) {
-        final senderId = payload['sender_id'] as String?;
-        final isTyping = payload['is_typing'] == true;
+      channel.onBroadcast(
+        event: 'typing',
+        callback: (payload) {
+          final senderId = payload['sender_id'] as String?;
+          final isTyping = payload['is_typing'] == true;
 
-        if (senderId == null || senderId == currentUserId) return;
+          if (senderId == null || senderId == currentUserId) return;
 
-        if (!isTyping) {
+          if (!isTyping) {
+            typingHideTimerRef.value?.cancel();
+            isOtherTyping.value = false;
+            return;
+          }
+
+          isOtherTyping.value = true;
           typingHideTimerRef.value?.cancel();
-          isOtherTyping.value = false;
-          return;
-        }
-
-        isOtherTyping.value = true;
-        typingHideTimerRef.value?.cancel();
-        typingHideTimerRef.value = Timer(const Duration(seconds: 2), () {
-          isOtherTyping.value = false;
-        });
-      });
+          typingHideTimerRef.value = Timer(const Duration(seconds: 2), () {
+            isOtherTyping.value = false;
+          });
+        },
+      );
 
       channel.subscribe();
 
@@ -101,107 +102,30 @@ class ChatScreen extends HookConsumerWidget {
     }, [conversationId, currentUserId]);
 
     return Scaffold(
-      appBar: AppBar(
-        title: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PersonInfoScreen(userId: otherUser.id),
-              ),
-            );
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(otherUser.name), // Accessing otherUser name
-              Text(
-                isOtherTyping.value ? "Typing..." : "Last seen recently",
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ),
-        ),
-
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: CircleAvatar(
-            child: otherUser.avatarUrl != ""
-                ? Image.network(otherUser.avatarUrl)
-                : Text(otherUser.name[0]),
-          ),
-        ), // Displaying the first letter of the name if no avatar
-      ), // Accessing otherUser name
+      appBar: ChatHeader(
+        otherUser: otherUser,
+        isOtherTyping: isOtherTyping.value,
+      ),
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
-              child: messages.when(
-                data: (dynamicMsgs) => staticMessages.when(
-                  data: (historyMsgs) {
-                    final allMessages = [
-                      ...dynamicMsgs.reversed,
-                      ...historyMsgs.reversed,
-                    ];
-                    if (allMessages.isEmpty) {
-                      return const Center(child: Text("No messages Yet"));
-                    }
-                    return ListView.builder(
-                      controller: scrollcontroller,
-                      reverse: true,
-                      itemCount: allMessages.length,
-                      itemBuilder: (context, index) {
-                        final message = allMessages[index];
-                        return MessageBubble(
-                          message: message,
-                          onMessageDeleted: (msgId) {
-                            logger.d("Message with ID $msgId deleted");
-                            allMessages.removeWhere((msg) => msg.id == msgId);
-                          },
-                          onEditMessagePressed: (msgId) {
-                            logger.d("Edit pressed for message ID $msgId");
-                            editMsgContent.value = message.content;
-                            editMsgId.value = message.id;
-                            isEditingMessage.value = true;
-                          },
-                        );
-                      },
-                    );
-                  },
-                  error: (e, s) => ErrorDisplay(error: e, stackTrace: s),
-                  loading: () => ListView.builder(
-                    itemCount: 6,
-                    itemBuilder: (context, index) => MessageSkeleton(
-                      isMe: index % 2 == 0,
-                      widthOffset: random.nextInt(100),
-                    ),
-                  ),
-                ),
-                // REMOVED: The Expanded widget that was here before
-                loading: () => ListView.builder(
-                  itemCount: 6,
-                  itemBuilder: (context, index) => MessageSkeleton(
-                    isMe: index % 2 == 0,
-                    widthOffset: random.nextInt(100),
-                  ),
-                ),
-                error: (e, st) =>
-                    const Center(child: Text('Error loading messages')),
+              child: ChatMessagesPanel(
+                dynamicMessages: messages,
+                historyMessages: staticMessages,
+                scrollController: scrollcontroller,
+                onEditMessagePressed: (Message message) {
+                  editMsgContent.value = message.content;
+                  editMsgId.value = message.id;
+                  isEditingMessage.value = true;
+                },
               ),
             ),
 
-            // The Send Message Input (Stays at the bottom)
-            if (isOtherTyping.value)
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 4),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    '${otherUser.name} is typing...',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              ),
+            TypingIndicator(
+              isVisible: isOtherTyping.value,
+              userName: otherUser.name,
+            ),
             isEditingMessage.value
                 ? MessageEditInput(
                     initialText: editMsgContent.value,

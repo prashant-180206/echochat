@@ -7,8 +7,20 @@ part 'message_provider.g.dart';
 
 /// Realtime messages (recent updates)
 @riverpod
-Stream<List<Message>> dynamicMessages(Ref ref, int conversationId) {
-  return MessageService.streamMessagesForConversation(conversationId);
+class DynamicMessages extends _$DynamicMessages {
+  int _conversationId = 0;
+  @override
+  Stream<List<Message>> build(int conversationId) {
+    _conversationId = conversationId;
+    return MessageService.streamMessagesForConversation(conversationId);
+  }
+
+  void refresh() async {
+    state = AsyncValue.loading();
+    state = AsyncValue.data(
+      await MessageService.getInitialMessagesForConversation(_conversationId),
+    );
+  }
 }
 
 /// Message history with pagination

@@ -15,13 +15,16 @@ class MessageService {
         .from('message')
         .stream(primaryKey: ['id'])
         .eq('conversation_id', conversationId)
-        .order('created_at', ascending: true)
+        // Usually, for chat, you want the most recent messages
+        .order('created_at', ascending: false)
         .limit(limit)
         .map(
-          (rows) => rows
-              .map((row) => Message.fromJson(row))
-              .where((msg) => msg.createdAt.isAfter(_threshold))
-              .toList(),
+          (rows) =>
+              rows
+                  .map((row) => Message.fromJson(row))
+                  .where((msg) => msg.createdAt.isAfter(_threshold))
+                  .toList()
+                ..sort((a, b) => a.createdAt.compareTo(b.createdAt)),
         );
   }
 
@@ -65,7 +68,6 @@ class MessageService {
   static Future<Message> sendMessage({
     required int conversationId,
     required String content,
-
   }) async {
     final currentUserId = supabase.auth.currentUser!.id;
 
@@ -79,8 +81,6 @@ class MessageService {
         })
         .select()
         .single();
-
-
 
     return Message.fromJson(response);
   }
