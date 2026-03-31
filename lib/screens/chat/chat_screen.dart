@@ -3,6 +3,7 @@ import 'package:echochat/core/models/conversation.dart';
 import 'package:echochat/core/providers/message_provider.dart';
 import 'package:echochat/core/models/message.dart';
 import 'package:echochat/core/services/message_service.dart';
+import 'package:echochat/core/services/notification_service.dart';
 import 'package:echochat/core/singleton.dart';
 import 'package:echochat/screens/chat/widgets/chat_header.dart';
 import 'package:echochat/screens/chat/widgets/chat_messages_panel.dart';
@@ -30,6 +31,7 @@ class ChatScreen extends HookConsumerWidget {
     final editMsgId = useState(0);
     final isOtherTyping = useState(false);
     final typingDebouncer = useMemoized(() => Debouncer());
+    final paginationDebouncer = useMemoized(() => Debouncer());
     final channelRef = useRef<RealtimeChannel?>(null);
     final typingHideTimerRef = useRef<Timer?>(null);
     final messages = ref.watch(dynamicMessagesProvider(conversationId));
@@ -53,16 +55,31 @@ class ChatScreen extends HookConsumerWidget {
     }
 
     useEffect(() {
+      MessageNotificationService.activeConversationId.value = conversationId;
+      return () {
+        if (MessageNotificationService.activeConversationId.value ==
+            conversationId) {
+          MessageNotificationService.activeConversationId.value = null;
+        }
+      };
+    }, [conversationId]);
+
+    useEffect(() {
       void listener() {
         if (scrollcontroller.position.pixels >=
             scrollcontroller.position.maxScrollExtent - 200) {
-          ref.read(messageHistoryProvider(conversationId).notifier).loadMore();
+          paginationDebouncer.debounce(
+            duration: const Duration(milliseconds: 300),
+            onDebounce: () {
+              ref.read(messageHistoryProvider(conversationId).notifier).loadMore();
+            },
+          );
         }
       }
 
       scrollcontroller.addListener(listener);
       return () => scrollcontroller.removeListener(listener);
-    }, [scrollcontroller, conversationId]);
+    }, [scrollcontroller, conversationId, paginationDebouncer]);
 
     useEffect(() {
       final channel = supabase.channel('chat-typing-$conversationId');

@@ -1,4 +1,5 @@
 import 'package:echochat/core/providers/app_theme_provider.dart';
+import 'package:echochat/core/services/notification_service.dart';
 import 'package:echochat/core/singleton.dart';
 import 'package:echochat/screens/landing_screen.dart';
 import 'package:echochat/screens/tab_screen.dart';
@@ -15,6 +16,7 @@ void main() async {
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
+  await MessageNotificationService.start();
   runApp(ProviderScope(child: const MyApp()));
 }
 

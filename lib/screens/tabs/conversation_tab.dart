@@ -3,6 +3,7 @@ import 'package:echochat/screens/tabs/widgets/conversation_tile.dart';
 import 'package:echochat/screens/tabs/widgets/error_display.dart';
 import 'package:echochat/screens/tabs/widgets/list_skeleton.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_debouncer/flutter_debouncer.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -15,18 +16,24 @@ class ConversationTab extends HookConsumerWidget {
     final staticConvos = ref.watch(staticConversationsProvider);
 
     final scrollcontroller = useScrollController();
+    final paginationDebouncer = useMemoized(() => Debouncer());
 
     useEffect(() {
       void listener() {
         if (scrollcontroller.position.pixels >=
             scrollcontroller.position.maxScrollExtent - 200) {
-          ref.read(staticConversationsProvider.notifier).loadMore();
+          paginationDebouncer.debounce(
+            duration: const Duration(milliseconds: 300),
+            onDebounce: () {
+              ref.read(staticConversationsProvider.notifier).loadMore();
+            },
+          );
         }
       }
 
       scrollcontroller.addListener(listener);
       return () => scrollcontroller.removeListener(listener);
-    }, [scrollcontroller]);
+    }, [scrollcontroller, paginationDebouncer]);
 
     return dynamicConvos.when(
       data: (dynamicData) {
