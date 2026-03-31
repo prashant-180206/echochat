@@ -4,11 +4,15 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 class MessageInput extends HookWidget {
   final Function(String) onSendPressed;
   final Function() onImageSendPressed;
+  final ValueChanged<String>? onTextChanged;
+  final VoidCallback? onTypingStopped;
 
   const MessageInput({
     super.key,
     required this.onSendPressed,
     required this.onImageSendPressed,
+    this.onTextChanged,
+    this.onTypingStopped,
   });
 
   @override
@@ -26,6 +30,7 @@ class MessageInput extends HookWidget {
           children: [
             IconButton(
               onPressed: () {
+                onTypingStopped?.call();
                 onImageSendPressed();
               },
               icon: const Icon(Icons.image),
@@ -41,6 +46,7 @@ class MessageInput extends HookWidget {
                 ),
                 child: TextField(
                   controller: controller,
+                  onChanged: onTextChanged,
                   minLines: 1,
                   maxLines: 5,
                   style: textTheme.bodyMedium?.copyWith(
@@ -62,6 +68,7 @@ class MessageInput extends HookWidget {
               onPressed: () {
                 onSendPressed(controller.text.trim());
                 controller.clear();
+                onTypingStopped?.call();
               },
               icon: const Icon(Icons.send),
               color: colorScheme.primary,

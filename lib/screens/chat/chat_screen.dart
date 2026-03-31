@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:async';
 import 'package:echochat/core/models/conversation.dart';
 import 'package:echochat/core/providers/message_provider.dart';
 import 'package:echochat/core/services/message_service.dart';
@@ -11,6 +12,8 @@ import 'package:echochat/screens/tabs/widgets/error_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_debouncer/flutter_debouncer.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ChatScreen extends HookConsumerWidget {
   const ChatScreen({
@@ -26,11 +29,30 @@ class ChatScreen extends HookConsumerWidget {
     final isEditingMessage = useState(false);
     final editMsgContent = useState("");
     final editMsgId = useState(0);
+    final isOtherTyping = useState(false);
+    final typingDebouncer = useMemoized(() => Debouncer());
+    final channelRef = useRef<RealtimeChannel?>(null);
+    final typingHideTimerRef = useRef<Timer?>(null);
     final messages = ref.watch(dynamicMessagesProvider(conversationId));
     final random = useMemoized(() => Random());
     final staticMessages = ref.watch(messageHistoryProvider(conversationId));
+    final currentUserId = supabase.auth.currentUser?.id;
 
     final scrollcontroller = useScrollController();
+
+    void sendTypingState(bool isTyping) {
+      final channel = channelRef.value;
+      if (channel == null || currentUserId == null) return;
+
+      channel.sendBroadcastMessage(
+        event: 'typing',
+        payload: {
+          'conversation_id': conversationId,
+          'sender_id': currentUserId,
+          'is_typing': isTyping,
+        },
+      );
+    }
 
     useEffect(() {
       void listener() {
@@ -43,6 +65,40 @@ class ChatScreen extends HookConsumerWidget {
       scrollcontroller.addListener(listener);
       return () => scrollcontroller.removeListener(listener);
     }, [scrollcontroller, conversationId]);
+
+    useEffect(() {
+      final channel = supabase.channel('chat-typing-$conversationId');
+      channelRef.value = channel;
+
+      channel.onBroadcast(event: 'typing', callback: (payload) {
+        final senderId = payload['sender_id'] as String?;
+        final isTyping = payload['is_typing'] == true;
+
+        if (senderId == null || senderId == currentUserId) return;
+
+        if (!isTyping) {
+          typingHideTimerRef.value?.cancel();
+          isOtherTyping.value = false;
+          return;
+        }
+
+        isOtherTyping.value = true;
+        typingHideTimerRef.value?.cancel();
+        typingHideTimerRef.value = Timer(const Duration(seconds: 2), () {
+          isOtherTyping.value = false;
+        });
+      });
+
+      channel.subscribe();
+
+      return () {
+        sendTypingState(false);
+        typingHideTimerRef.value?.cancel();
+        channel.unsubscribe();
+        supabase.removeChannel(channel);
+        channelRef.value = null;
+      };
+    }, [conversationId, currentUserId]);
 
     return Scaffold(
       appBar: AppBar(
@@ -60,7 +116,7 @@ class ChatScreen extends HookConsumerWidget {
             children: [
               Text(otherUser.name), // Accessing otherUser name
               Text(
-                "Last seen recently", // Placeholder for last seen
+                isOtherTyping.value ? "Typing..." : "Last seen recently",
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
@@ -135,6 +191,17 @@ class ChatScreen extends HookConsumerWidget {
             ),
 
             // The Send Message Input (Stays at the bottom)
+            if (isOtherTyping.value)
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 4),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '${otherUser.name} is typing...',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ),
             isEditingMessage.value
                 ? MessageEditInput(
                     initialText: editMsgContent.value,
@@ -150,6 +217,7 @@ class ChatScreen extends HookConsumerWidget {
                   )
                 : MessageInput(
                     onSendPressed: (text) {
+                      if (text.isEmpty) return;
                       logger.d("Send button pressed with message: $text");
                       MessageService.sendMessage(
                         conversationId: conversationId,
@@ -162,6 +230,19 @@ class ChatScreen extends HookConsumerWidget {
                         conversationId: conversationId,
                       );
                     },
+                    onTextChanged: (value) {
+                      if (value.trim().isEmpty) {
+                        sendTypingState(false);
+                        return;
+                      }
+
+                      sendTypingState(true);
+                      typingDebouncer.debounce(
+                        duration: const Duration(milliseconds: 700),
+                        onDebounce: () => sendTypingState(false),
+                      );
+                    },
+                    onTypingStopped: () => sendTypingState(false),
                   ),
           ],
         ),
