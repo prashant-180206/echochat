@@ -4,12 +4,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 class LoginForm extends HookWidget {
   final Function(String email, String password) onLogin;
   final Function() onGoogleLogin;
-  
-  LoginForm({
-    super.key,
-    required this.onLogin,
-    required this.onGoogleLogin,
-  });
+
+  LoginForm({super.key, required this.onLogin, required this.onGoogleLogin});
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final InputDecoration inputDecoration = InputDecoration(
@@ -124,7 +120,7 @@ class LoginForm extends HookWidget {
                       }
                     }
                   },
-            icon: const Icon(Icons.g_mobiledata),
+            icon: Image.asset("assets/images/google.png", height: 20, width: 20),
             label: const Text("Sign in with Google"),
           ),
         ],

@@ -1,8 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-permission android:name="android.permission.INTERNET" />
+  <!-- For picking images -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+<!-- Optional: if you support videos -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
+<!-- Optional: audio -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
 
         android:label="echochat"

@@ -6,11 +6,7 @@ class SignUpForm extends HookWidget {
   final Future<bool> Function(ProfileDataUpload data) onSignUp;
   final Function() onGoogleSignUp;
 
-  SignUpForm({
-    super.key,
-    required this.onSignUp,
-    required this.onGoogleSignUp,
-  });
+  SignUpForm({super.key, required this.onSignUp, required this.onGoogleSignUp});
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final InputDecoration inputDecoration = InputDecoration(
@@ -158,7 +154,9 @@ class SignUpForm extends HookWidget {
                           // Navigator.pop(context);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Failed to create account")),
+                            const SnackBar(
+                              content: Text("Failed to create account"),
+                            ),
                           );
                         }
                       } finally {
@@ -190,7 +188,11 @@ class SignUpForm extends HookWidget {
                       }
                     }
                   },
-            icon: const Icon(Icons.g_mobiledata),
+            icon: Image.asset(
+              "assets/images/google.png",
+              height: 20,
+              width: 20,
+            ),
             label: const Text("Sign up with Google"),
           ),
         ],
