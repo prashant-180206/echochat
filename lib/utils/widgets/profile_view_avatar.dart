@@ -48,7 +48,7 @@ class ProfileViewAvatar extends StatelessWidget {
               )
             : Text(
                 name.isNotEmpty ? name[0].toUpperCase() : '?',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 36),
               ),
       ),
     );

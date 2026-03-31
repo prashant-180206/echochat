@@ -8,12 +8,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ProfileUpdateForm extends HookConsumerWidget {
   final Profile initialProfile;
-  final VoidCallback? onSuccess;
+  final VoidCallback onSuccess;
 
   const ProfileUpdateForm({
     super.key,
     required this.initialProfile,
-    this.onSuccess,
+    required this.onSuccess,
   });
 
   @override
@@ -121,7 +121,7 @@ class ProfileUpdateForm extends HookConsumerWidget {
                 await ref
                     .read(profileInstanceProvider.notifier)
                     .updateProfile(updatedProfile);
-                if (context.mounted) onSuccess?.call();
+                if (context.mounted) onSuccess();
               }
             },
             child: const Text(

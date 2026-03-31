@@ -4,8 +4,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SignUpForm extends HookWidget {
   final Future<bool> Function(ProfileDataUpload data) onSignUp;
+  final Function() onGoogleSignUp;
 
-  SignUpForm({super.key, required this.onSignUp});
+  SignUpForm({
+    super.key,
+    required this.onSignUp,
+    required this.onGoogleSignUp,
+  });
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final InputDecoration inputDecoration = InputDecoration(
@@ -170,6 +175,23 @@ class SignUpForm extends HookWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Text("Create Account"),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: isLoading.value
+                ? null
+                : () async {
+                    isLoading.value = true;
+                    try {
+                      await onGoogleSignUp();
+                    } finally {
+                      if (context.mounted) {
+                        isLoading.value = false;
+                      }
+                    }
+                  },
+            icon: const Icon(Icons.g_mobiledata),
+            label: const Text("Sign up with Google"),
           ),
         ],
       ),

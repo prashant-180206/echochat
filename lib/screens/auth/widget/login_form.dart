@@ -3,7 +3,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 class LoginForm extends HookWidget {
   final Function(String email, String password) onLogin;
-  LoginForm({super.key, required this.onLogin});
+  final Function() onGoogleLogin;
+  
+  LoginForm({
+    super.key,
+    required this.onLogin,
+    required this.onGoogleLogin,
+  });
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final InputDecoration inputDecoration = InputDecoration(
@@ -103,6 +109,23 @@ class LoginForm extends HookWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Text("Login"),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: isLoading.value
+                ? null
+                : () async {
+                    isLoading.value = true;
+                    try {
+                      await onGoogleLogin();
+                    } finally {
+                      if (context.mounted) {
+                        isLoading.value = false;
+                      }
+                    }
+                  },
+            icon: const Icon(Icons.g_mobiledata),
+            label: const Text("Sign in with Google"),
           ),
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:echochat/core/providers/profile_provider.dart';
 import 'package:echochat/core/singleton.dart';
 import 'package:echochat/screens/edit/widgets/profile_update_form.dart';
+import 'package:echochat/screens/person/widget/profile_info_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -19,10 +20,11 @@ class EditProfileScreen extends HookConsumerWidget {
             initialProfile: data,
             onSuccess: () {
               logger.d("Profile updated, refreshing...");
+              Navigator.pop(context);
             },
           ),
           error: (e, s) => ErrorWidget(e),
-          loading: () => CircularProgressIndicator(),
+          loading: () => PersonInfoSkeleton(),
         ),
       ),
     );

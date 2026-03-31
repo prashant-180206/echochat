@@ -62,6 +62,22 @@ class SettingsTab extends ConsumerWidget {
               ),
             ),
 
+            const SizedBox(height: 16),
+
+            Card(
+              child: ListTile(
+                leading: Icon(
+                  Icons.refresh,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                title: const Text('Refresh Cache'),
+                subtitle: const Text('Reload all data providers'),
+                onTap: () {
+           
+                },
+              ),
+            ),
+
             const Spacer(),
 
             Card(
@@ -120,4 +136,5 @@ class SettingsTab extends ConsumerWidget {
       ),
     );
   }
+
 }

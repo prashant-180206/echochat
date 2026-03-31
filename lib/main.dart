@@ -1,8 +1,6 @@
 import 'package:echochat/core/providers/app_theme_provider.dart';
 import 'package:echochat/core/services/notification_service.dart';
-import 'package:echochat/core/singleton.dart';
-import 'package:echochat/screens/landing_screen.dart';
-import 'package:echochat/screens/tab_screen.dart';
+import 'package:echochat/screens/auth/auth_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -26,7 +24,9 @@ class MyApp extends ConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final thememode = ref.watch(appThemeProvider);  return MaterialApp(
+    final thememode = ref.watch(appThemeProvider);
+
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'EchoChat',
       theme: ThemeData(
@@ -94,9 +94,7 @@ class MyApp extends ConsumerWidget {
         ),
       ),
       themeMode: thememode,
-      home: supabase.auth.currentSession != null
-          ? const TabScreen()
-          : const LandingScreen(),
+      home: const AuthGate(),
     );
   }
 }

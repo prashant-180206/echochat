@@ -31,6 +31,34 @@ class SignupScreen extends StatelessWidget {
                   }
                   return true;
                 },
+                onGoogleSignUp: () async {
+                  try {
+                    final success = await AuthService.signInWithGoogle();
+                    if (!success) {
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Google sign-up cancelled"),
+                        ),
+                      );
+                      return;
+                    }
+                    if (!context.mounted) return;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    );
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "Google sign-up error: ${e.toString()}",
+                        ),
+                      ),
+                    );
+                  }
+                },
               ),
             ],
           ),

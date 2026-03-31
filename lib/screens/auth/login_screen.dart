@@ -43,6 +43,36 @@ class LoginScreen extends StatelessWidget {
                     );
                   }
                 },
+                onGoogleLogin: () async {
+                  try {
+                    final success = await AuthService.signInWithGoogle();
+                    if (!success) {
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Google sign-in cancelled"),
+                        ),
+                      );
+                      return;
+                    }
+                    if (!context.mounted) return;
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TabScreen(),
+                      ),
+                    );
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "Google sign-in error: ${e.toString()}",
+                        ),
+                      ),
+                    );
+                  }
+                },
               ),
 
               Text("Don't have an account? "),
